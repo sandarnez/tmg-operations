@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMG Operations Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;font-size:14px;line-height:1.5;display:flex;min-height:100vh}
+/* SIDEBAR */
+.sb{width:220px;background:#fff;border-right:1px solid #e5e5e3;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-logo{padding:1.25rem 1rem 1rem;border-bottom:1px solid #e5e5e3}
+.sb-logo h1{font-size:15px;font-weight:700;color:#1a1a1a}
+.sb-logo p{font-size:11px;color:#888;margin-top:2px}
+.ns{padding:.6rem .75rem .2rem;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 1rem;cursor:pointer;font-size:13px;color:#555;border-left:3px solid transparent;transition:all .12s}
+.ni:hover{background:#f5f5f3;color:#1a1a1a}
+.ni.on{background:#E6F1FB;color:#0C447C;border-left-color:#185FA5;font-weight:600}
+.nd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid #e5e5e3;padding:.875rem 1.5rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:17px;font-weight:700;flex:1;color:#1a1a1a}
+.sync-row{display:flex;align-items:center;gap:5px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#639922}
+.sync-lbl{font-size:11px;color:#3B6D11}
+.tbtn{font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid #d5d5d3;background:#fff;color:#333;cursor:pointer;font-weight:500}
+.tbtn:hover{background:#f5f5f3}
+.tbtn.primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.tbtn.primary:hover{background:#0C447C}
+.content{padding:1.5rem;flex:1}
+/* DASHBOARD TABS */
+.dash-tabs{display:flex;border:1px solid #e5e5e3;border-radius:10px;overflow:hidden;margin-bottom:1.25rem;width:fit-content;background:#fff}
+.dt{font-size:12px;padding:7px 18px;cursor:pointer;background:transparent;color:#666;border:none;border-right:1px solid #e5e5e3;font-weight:500}
+.dt:last-child{border-right:none}
+.dt.on{background:#E6F1FB;color:#0C447C;font-weight:700}
+/* STATS */
+.dash-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1.25rem}
+.mc{background:#fff;border:1px solid #e5e5e3;border-radius:10px;padding:.875rem 1.1rem}
+.ml{font-size:11px;color:#888;margin-bottom:4px}
+.mv{font-size:26px;font-weight:700;color:#1a1a1a}
+.mv.r{color:#A32D2D}.mv.a{color:#854F0B}.mv.g{color:#3B6D11}.mv.b{color:#185FA5}
+/* SECTION HEADERS */
+.sh{font-size:13px;font-weight:700;margin-bottom:8px;color:#1a1a1a}
+.sh-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sh-cnt{font-size:11px;padding:2px 8px;border-radius:8px;background:#f0f0ee;color:#666}
+/* URGENT LIST */
+.ul{display:flex;flex-direction:column;gap:5px;margin-bottom:1.25rem}
+.ui{background:#fff;border:1px solid #e5e5e3;border-radius:8px;padding:9px 13px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.ui:hover{background:#fafaf8}
+.ua{font-size:13px;font-weight:600;flex:1;color:#1a1a1a}
+/* BADGES */
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:8px;font-weight:600;white-space:nowrap}
+.br{background:#FCEBEB;color:#A32D2D}
+.ba{background:#FAEEDA;color:#854F0B}
+.bg{background:#EAF3DE;color:#3B6D11}
+.bb{background:#E6F1FB;color:#185FA5}
+.bp{background:#EEEDFE;color:#3C3489}
+.bgr{background:#F1EFE8;color:#5F5E5A}
+.bau{background:#F1EFE8;color:#5F5E5A}
+/* TODO */
+.todo-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.add-task-btn{font-size:12px;padding:6px 16px;border-radius:8px;border:none;background:#185FA5;color:#fff;cursor:pointer;font-weight:600}
+.add-task-btn:hover{background:#0C447C}
+.add-form{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:1.1rem;margin-bottom:1rem;display:none}
+.add-form.show{display:block}
+.add-form h3{font-size:14px;font-weight:700;margin-bottom:10px;color:#1a1a1a}
+.frow{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.fi{font-size:12px;padding:6px 10px;border:1px solid #d5d5d3;border-radius:8px;background:#fafaf8;color:#1a1a1a;flex:1;min-width:130px}
+.fi:focus{outline:none;border-color:#378ADD}
+.fact{display:flex;gap:8px}
+.fb2{font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid #d5d5d3;background:#fafaf8;color:#1a1a1a;cursor:pointer}
+.fb2.p{background:#185FA5;color:#fff;border-color:#185FA5}
+/* TASK CARDS */
+.tlist{display:flex;flex-direction:column;gap:4px;margin-bottom:1.25rem}
+.tc{background:#fff;border:1px solid #e5e5e3;border-radius:10px;overflow:hidden}
+.tc.ov{border-color:#F09595}
+.tc.dk{opacity:.6}
+.tmain{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;cursor:pointer}
+.tmain:hover{background:#fafaf8}
+.chk{width:16px;height:16px;border-radius:4px;border:1.5px solid #d5d5d3;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .12s}
+.chk.on{background:#185FA5;border-color:#185FA5}
+.chk.on::after{content:'';width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg);display:block;margin-top:-2px}
+.tcont{flex:1;min-width:0}
+.ttl{font-size:13px;font-weight:500;color:#1a1a1a;line-height:1.4}
+.ttl.dk{text-decoration:line-through;color:#aaa}
+.tmeta{display:flex;gap:5px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.tprop{font-size:10px;color:#888}
+.tright{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.tdue{font-size:11px;color:#888;white-space:nowrap}
+.tdue.ov{color:#A32D2D;font-weight:600}
+.exbtn{font-size:10px;color:#aaa;padding:2px 6px;border-radius:4px;border:1px solid #e5e5e3;background:transparent;cursor:pointer;transition:transform .2s}
+.tc.ex .exbtn{transform:rotate(180deg)}
+/* TASK EXPAND */
+.texp{display:none;border-top:1px solid #f0f0ee;padding:10px 14px 12px 40px;background:#fafaf8}
+.tc.ex .texp{display:block}
+.slist{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
+.sub{display:flex;align-items:center;gap:8px;padding:3px 0}
+.schk{width:13px;height:13px;border-radius:3px;border:1.5px solid #d5d5d3;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.schk.on{background:#185FA5;border-color:#185FA5}
+.schk.on::after{content:'';width:7px;height:4px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg);display:block;margin-top:-1px}
+.stl{font-size:12px;color:#1a1a1a;flex:1}
+.stl.dk{text-decoration:line-through;color:#aaa}
+.sdue{font-size:10px;color:#888;white-space:nowrap}
+.sdue.ov{color:#A32D2D}
+.subrow{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.mi{font-size:11px;padding:4px 8px;border:1px solid #d5d5d3;border-radius:6px;background:#fff;color:#1a1a1a;flex:1;min-width:100px}
+.mi:focus{outline:none;border-color:#378ADD}
+.mbtn{font-size:11px;padding:4px 10px;border-radius:6px;border:none;background:#185FA5;color:#fff;cursor:pointer;white-space:nowrap}
+.arow{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.albl{font-size:11px;color:#888;white-space:nowrap}
+.asel{font-size:11px;padding:3px 7px;border:1px solid #d5d5d3;border-radius:6px;background:#fff;color:#1a1a1a}
+.delbtn{font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid #F7C1C1;background:transparent;color:#A32D2D;cursor:pointer;margin-left:auto}
+.nrow{display:flex;gap:7px;align-items:center;margin-top:7px}
+.ninp{font-size:12px;padding:4px 9px;border:1px solid #d5d5d3;border-radius:6px;background:#fff;color:#1a1a1a;flex:1}
+/* CALENDAR */
+.cal-wrap{background:#fff;border:1px solid #e5e5e3;border-radius:12px;overflow:hidden}
+.cal-hdr{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid #e5e5e3}
+.cal-mo{font-size:15px;font-weight:700;flex:1;text-align:center;color:#1a1a1a}
+.cnav{font-size:12px;padding:5px 12px;border-radius:7px;border:1px solid #d5d5d3;background:transparent;cursor:pointer;color:#1a1a1a}
+.dl-hdr{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #e5e5e3}
+.dlbl{font-size:10px;font-weight:700;color:#888;text-align:center;padding:6px 0;text-transform:uppercase}
+.dgrid{display:grid;grid-template-columns:repeat(7,1fr)}
+.cell{min-height:80px;border-right:1px solid #e5e5e3;border-bottom:1px solid #e5e5e3;padding:5px;cursor:pointer;vertical-align:top;transition:background .1s}
+.cell:hover{background:#f5f5f3}
+.cell:nth-child(7n){border-right:none}
+.cell.tod{background:#E6F1FB}
+.cell.om .cdate{color:#ccc}
+.cdate{font-size:11px;font-weight:600;color:#1a1a1a;margin-bottom:3px}
+.cev{font-size:10px;padding:2px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;cursor:pointer}
+.cev:hover{opacity:.8}
+.cev.auto{background:#FAEEDA;color:#854F0B}
+.cev.manual{background:#E6F1FB;color:#0C447C}
+.cev.ov-ev{background:#FCEBEB;color:#A32D2D}
+.cev.done-ev{background:#f0f0ee;color:#aaa;text-decoration:line-through}
+.cal-add-hint{font-size:9px;color:#ccc;margin-top:2px}
+/* QUICK-ADD MODAL */
+.modal-bg{display:none;background:rgba(0,0,0,.35);position:fixed;inset:0;z-index:100;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:14px;padding:1.5rem;width:420px;max-width:95vw}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:1rem;color:#1a1a1a}
+.modal .frow{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.modal .fi{font-size:13px;padding:7px 10px;border:1px solid #d5d5d3;border-radius:8px;background:#fafaf8;color:#1a1a1a;flex:1;min-width:140px}
+.modal .fact{display:flex;gap:8px}
+.modal .fb2{font-size:13px;padding:7px 16px;border-radius:8px;border:1px solid #d5d5d3;background:#fafaf8;color:#1a1a1a;cursor:pointer}
+.modal .fb2.p{background:#185FA5;color:#fff;border-color:#185FA5}
+/* MODULES */
+.prop-grid{display:flex;flex-direction:column;gap:6px}
+.prop-card{background:#fff;border:1px solid #e5e5e3;border-radius:10px;overflow:hidden}
+.prop-header{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer}
+.prop-header:hover{background:#fafaf8}
+.prop-addr{font-size:13px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1a1a1a}
+.prop-body{display:none;border-top:1px solid #f0f0ee;padding:14px}
+.prop-card.open .prop-body{display:block}
+.prop-card.open .chv{transform:rotate(180deg)}
+.chv{font-size:9px;color:#aaa;transition:transform .2s}
+.msg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.ms{border:1px solid #e5e5e3;border-radius:8px;padding:7px 9px;cursor:pointer}
+.ms:hover{background:#f5f5f3}
+.msn{font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.msv{font-size:12px;font-weight:600;color:#185FA5}
+.msv.none{color:#ccc;font-weight:400}
+.mod-container{display:flex;flex-direction:column;gap:7px}
+.mod-card{background:#fff;border:1px solid #e5e5e3;border-radius:10px;overflow:hidden}
+.mod-header{display:flex;align-items:center;gap:10px;padding:11px 15px;cursor:pointer}
+.mod-header:hover{background:#fafaf8}
+.mod-addr{font-size:13px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1a1a1a}
+.mod-body{display:none;border-top:1px solid #f0f0ee;padding:13px 15px}
+.mod-card.open .mod-body{display:block}
+.mod-card.open .mchv{transform:rotate(180deg)}
+.mchv{font-size:9px;color:#aaa;transition:transform .2s}
+.tabs{display:flex;border:1px solid #e5e5e3;border-radius:8px;overflow:hidden;margin-bottom:12px}
+.tab{font-size:12px;padding:6px 14px;cursor:pointer;background:#fafaf8;color:#666;border:none;border-right:1px solid #e5e5e3;flex:1;text-align:center;font-weight:500}
+.tab:last-child{border-right:none}
+.tab.on{background:#fff;color:#1a1a1a;font-weight:700}
+.tp{display:none}
+.tp.show{display:block}
+.ph-blk{margin-bottom:13px}
+.ph-t{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid #f0f0ee}
+.task-list2{display:flex;flex-direction:column;gap:4px}
+.task2{display:flex;align-items:flex-start;gap:8px;padding:3px 0;cursor:pointer}
+.task2 input[type=checkbox]{margin-top:2px;accent-color:#185FA5;cursor:pointer;width:14px;height:14px;flex-shrink:0}
+.task2-text{font-size:12px;line-height:1.5;flex:1;color:#1a1a1a}
+.task2.done .task2-text{text-decoration:line-through;color:#aaa}
+.role{font-size:10px;color:#888;background:#f5f5f3;padding:1px 5px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+.pbar{height:5px;background:#f0f0ee;border-radius:3px;overflow:hidden;margin-bottom:3px}
+.pfill{height:100%;background:#185FA5;border-radius:3px;transition:width .3s}
+.pct-lbl{font-size:11px;color:#888;margin-bottom:10px}
+.tpl-sec{margin-bottom:13px}
+.tpl-sec-hdr{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.tpl-item{border:1px solid #e5e5e3;border-radius:8px;margin-bottom:5px;overflow:hidden}
+.tpl-bar{display:flex;align-items:center;gap:10px;padding:8px 11px;cursor:pointer;background:#fafaf8}
+.tpl-bar:hover{background:#f0f0ee}
+.tpl-name{font-size:12px;font-weight:600;flex:1;color:#1a1a1a}
+.tpl-tag{font-size:10px;padding:2px 7px;border-radius:6px;background:#E6F1FB;color:#0C447C;font-weight:600}
+.tpl-body{display:none;padding:10px 11px;border-top:1px solid #e5e5e3}
+.tpl-item.open .tpl-body{display:block}
+.tpl-txt{font-size:11px;color:#1a1a1a;line-height:1.7;white-space:pre-wrap;background:#fafaf8;padding:9px;border-radius:7px;margin-bottom:7px;font-family:'Courier New',monospace;border:1px solid #e5e5e3}
+.cbtn{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #d5d5d3;background:#fff;color:#333;cursor:pointer}
+.cbtn:hover{background:#fafaf8}
+.notes-area{width:100%;font-size:12px;padding:8px 10px;border:1px solid #d5d5d3;border-radius:8px;background:#fafaf8;color:#1a1a1a;resize:vertical;min-height:70px;font-family:inherit;line-height:1.5}
+.notes-area:focus{outline:none;border-color:#378ADD}
+.field-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.field-lbl{font-size:12px;color:#666;white-space:nowrap;min-width:100px}
+.field-input{font-size:12px;padding:5px 9px;border:1px solid #d5d5d3;border-radius:7px;background:#fafaf8;color:#1a1a1a;flex:1}
+.field-input:focus{outline:none;border-color:#378ADD}
+.sea-note{font-size:11px;color:#0C447C;background:#E6F1FB;padding:3px 9px;border-radius:5px;display:inline-block;font-weight:500;margin-bottom:8px}
+.date-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.db{border:1px solid #e5e5e3;border-radius:7px;padding:7px 9px}
+.dbl{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.dbv{font-size:11px;font-weight:600;color:#1a1a1a}
+/* TRACKER */
+.em-list{display:flex;flex-direction:column;gap:6px}
+.em-card{background:#fff;border:1px solid #e5e5e3;border-radius:10px;overflow:hidden}
+.em-card.done-card{opacity:.6}
+.em-main{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;cursor:pointer}
+.em-main:hover{background:#fafaf8}
+.em-chk{width:16px;height:16px;border-radius:4px;border:1.5px solid #d5d5d3;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .12s}
+.em-chk.on{background:#185FA5;border-color:#185FA5}
+.em-chk.on::after{content:'';width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg);display:block;margin-top:-2px}
+.em-cont{flex:1;min-width:0}
+.em-title{font-size:13px;font-weight:500;color:#1a1a1a;line-height:1.4}
+.em-title.dk{text-decoration:line-through;color:#aaa}
+.em-meta{display:flex;gap:5px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.em-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.em-date{font-size:11px;color:#888;white-space:nowrap}
+.em-exbtn{font-size:10px;color:#aaa;padding:2px 6px;border-radius:4px;border:1px solid #e5e5e3;background:transparent;cursor:pointer;transition:transform .2s}
+.em-card.ex .em-exbtn{transform:rotate(180deg)}
+.em-exp{display:none;border-top:1px solid #f0f0ee;padding:10px 14px 12px 40px;background:#fafaf8}
+.em-card.ex .em-exp{display:block}
+.em-slist{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
+.em-sub{display:flex;align-items:center;gap:8px;padding:3px 0}
+.em-schk{width:13px;height:13px;border-radius:3px;border:1.5px solid #d5d5d3;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.em-schk.on{background:#185FA5;border-color:#185FA5}
+.em-schk.on::after{content:'';width:7px;height:4px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg);display:block;margin-top:-1px}
+.em-stl{font-size:12px;color:#1a1a1a;flex:1}
+.em-stl.dk{text-decoration:line-through;color:#aaa}
+.em-subrow{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.em-arow{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.em-albl{font-size:11px;color:#888;white-space:nowrap}
+.em-asel{font-size:11px;padding:3px 7px;border:1px solid #d5d5d3;border-radius:6px;background:#fff;color:#1a1a1a}
+.em-delbtn{font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid #F7C1C1;background:transparent;color:#A32D2D;cursor:pointer;margin-left:auto}
+.em-nrow{display:flex;gap:7px;align-items:center;margin-top:7px}
+.em-ninp{font-size:12px;padding:4px 9px;border:1px solid #d5d5d3;border-radius:6px;background:#fff;color:#1a1a1a;flex:1}
+.em-ninp:focus{outline:none;border-color:#378ADD}
+.aef{background:#fff;border:1px solid #e5e5e3;border-radius:10px;padding:13px;margin-bottom:11px;display:none}
+.aef.show{display:block}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.fgi{width:100%;font-size:12px;padding:6px 9px;border:1px solid #d5d5d3;border-radius:7px;background:#fafaf8;color:#1a1a1a}
+/* CONTACTS */
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin-bottom:1.5rem}
+.contact-card{background:#fff;border:1px solid #e5e5e3;border-radius:10px;padding:1rem 1.1rem}
+.contact-card:hover{border-color:#d5d5d3}
+.contact-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.contact-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.contact-name{font-size:14px;font-weight:700;color:#1a1a1a}
+.contact-prop{font-size:11px;color:#888;margin-top:1px}
+.contact-fields{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.cf-lbl{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
+.cf-val{font-size:12px;color:#1a1a1a;font-weight:500}
+.contact-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0ee}
+/* TEMPLATES */
+.tlib-section{margin-bottom:1.5rem}
+.tlib-section-hdr{font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:8px;padding:6px 10px;background:#fff;border:1px solid #e5e5e3;border-radius:8px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.tlib-section-hdr:hover{background:#fafaf8}
+.tlib-items{display:flex;flex-direction:column;gap:6px}
+.tlib-card{background:#fff;border:1px solid #e5e5e3;border-radius:10px;overflow:hidden}
+.tlib-header{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer}
+.tlib-header:hover{background:#fafaf8}
+.tlib-title{font-size:13px;font-weight:600;flex:1;color:#1a1a1a}
+.tlib-body{display:none;border-top:1px solid #f0f0ee;padding:14px}
+.tlib-card.open .tlib-body{display:block}
+.tlib-card.open .tlchv{transform:rotate(180deg)}
+.tlchv{font-size:9px;color:#aaa;transition:transform .2s}
+.tpl-editor{width:100%;font-size:12px;padding:10px;border:1px solid #d5d5d3;border-radius:8px;background:#fafaf8;color:#1a1a1a;resize:vertical;min-height:160px;font-family:'Courier New',monospace;line-height:1.6}
+.tpl-editor:focus{outline:none;border-color:#378ADD}
+.tpl-actions{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.tpl-saved{font-size:11px;color:#3B6D11;display:none}
+.tpl-preview{background:#f0f8ff;border:1px solid #B5D4F4;border-radius:8px;padding:10px;font-size:12px;color:#1a1a1a;line-height:1.7;white-space:pre-wrap;font-family:'Courier New',monospace;margin-top:8px;display:none}
+.tpl-preview.show{display:block}
+.field-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.chip{font-size:10px;padding:2px 8px;border-radius:12px;background:#EEEDFE;color:#3C3489;cursor:pointer;font-weight:600;border:1px solid #AFA9EC}
+.chip:hover{background:#CECBF6}
+/* ADMIN */
+.adm-sec{background:#fff;border:1px solid #e5e5e3;border-radius:10px;padding:1.1rem;margin-bottom:.875rem}
+.adm-sec h3{font-size:14px;font-weight:700;margin-bottom:11px;color:#1a1a1a}
+.pa-list{display:flex;flex-direction:column;gap:5px;margin-bottom:11px;max-height:380px;overflow-y:auto}
+.pa-item{display:flex;align-items:center;gap:8px;padding:7px 11px;background:#fafaf8;border:1px solid #e5e5e3;border-radius:8px;font-size:12px}
+.pa-addr{flex:1;font-weight:500;color:#1a1a1a}
+.ctrls-bar{display:flex;gap:6px;margin-bottom:.875rem;flex-wrap:wrap;align-items:center}
+.fb3{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid #d5d5d3;background:#fff;color:#666;cursor:pointer;font-weight:500}
+.fb3:hover{background:#f5f5f3}
+.fb3.on{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.srch{font-size:12px;padding:6px 11px;border:1px solid #d5d5d3;border-radius:8px;background:#fff;color:#1a1a1a;width:200px;margin-left:auto}
+.srch:focus{outline:none;border-color:#378ADD}
+.empty{text-align:center;padding:3rem;color:#aaa;font-size:13px}
+@media(max-width:700px){.sb{display:none}.dash-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sb">
+  <div class="sb-logo"><h1>TMG Operations</h1><p>Property Management Hub</p></div>
+  <div class="ns">Overview</div>
+  <div class="ni on" onclick="go('dashboard')" id="nav-dashboard"><span class="nd" style="background:#185FA5"></span>Dashboard</div>
+  <div class="ni" onclick="go('properties')" id="nav-properties"><span class="nd" style="background:#639922"></span>Properties</div>
+  <div class="ns">Modules</div>
+  <div class="ni" onclick="go('renewals')" id="nav-renewals"><span class="nd" style="background:#854F0B"></span>Lease Renewals</div>
+  <div class="ni" onclick="go('owner-onboard')" id="nav-owner-onboard"><span class="nd" style="background:#3C3489"></span>Owner Onboarding</div>
+  <div class="ni" onclick="go('tenant-onboard')" id="nav-tenant-onboard"><span class="nd" style="background:#0F6E56"></span>Tenant Onboarding</div>
+  <div class="ni" onclick="go('tenant-offboard')" id="nav-tenant-offboard"><span class="nd" style="background:#993C1D"></span>Tenant Offboarding</div>
+  <div class="ni" onclick="go('turnover')" id="nav-turnover"><span class="nd" style="background:#BA7517"></span>Property Turnover</div>
+  <div class="ni" onclick="go('owner-offboard')" id="nav-owner-offboard"><span class="nd" style="background:#D4537E"></span>Owner Offboarding</div>
+  <div class="ns">Tools</div>
+  <div class="ni" onclick="go('email-tracker')" id="nav-email-tracker"><span class="nd" style="background:#888"></span>Tracker</div>
+  <div class="ni" onclick="go('contacts')" id="nav-contacts"><span class="nd" style="background:#0F6E56"></span>Contacts</div>
+  <div class="ni" onclick="go('templates')" id="nav-templates"><span class="nd" style="background:#534AB7"></span>Templates</div>
+  <div class="ni" onclick="go('admin')" id="nav-admin"><span class="nd" style="background:#aaa"></span>Admin / Settings</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">Dashboard</div>
+    <div class="sync-row"><span class="sync-dot" id="syncDot"></span><span class="sync-lbl" id="syncLbl">Ready</span></div>
+    <button class="tbtn primary" onclick="go('admin')">+ Add Property</button>
+  </div>
+  <div class="content" id="mainContent"></div>
+</div>
+
+<!-- QUICK-ADD MODAL (calendar click) -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">Add task</h3>
+    <div class="frow">
+      <input class="fi" id="m-title" placeholder="Task title..." style="flex:2;min-width:200px">
+      <select class="fi" id="m-assign">
+        <option value="">Assign to...</option>
+        <option>Ops Manager</option><option>PM</option><option>Sonya</option><option>Admin</option>
+      </select>
+    </div>
+    <div class="frow">
+      <input class="fi" id="m-prop" placeholder="Property / context (optional)">
+      <input class="fi" id="m-due" type="date">
+    </div>
+    <div class="frow">
+      <select class="fi" id="m-mod">
+        <option value="General">General</option>
+        <option>Lease Renewal</option><option>Owner Onboarding</option><option>Tenant Onboarding</option>
+        <option>Tenant Offboarding</option><option>Property Turnover</option><option>Owner Offboarding</option>
+      </select>
+    </div>
+    <div class="fact">
+      <button class="fb2 p" onclick="saveModal()">Add task</button>
+      <button class="fb2" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ──────────────────────────────────────────────────────────────
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const PTITLES = {'dashboard':'Dashboard','properties':'Properties','renewals':'Lease Renewals','owner-onboard':'Owner Onboarding','tenant-onboard':'Tenant Onboarding','tenant-offboard':'Tenant Offboarding','turnover':'Property Turnover','owner-offboard':'Owner Offboarding','email-tracker':'Tracker','contacts':'Contacts','templates':'Templates','admin':'Admin / Settings'};
+
+function addD(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function d2iso(d){return d.getFullYear()+'-'+(d.getMonth()<9?'0':'')+(d.getMonth()+1)+'-'+(d.getDate()<10?'0':'')+d.getDate();}
+function parseDate(s){if(!s||!s.trim())return null;const p=s.split('/');if(p.length<3)return null;const y=p[2].length===2?'20'+p[2]:p[2];return new Date(+y,+p[0]-1,+p[1]);}
+function isOD(d){return d&&new Date(d+'T00:00:00')<TODAY;}
+function isTW(d){if(!d)return false;const dt=new Date(d+'T00:00:00');const dow=TODAY.getDay();const m=new Date(TODAY);m.setDate(TODAY.getDate()-dow+1);const s=new Date(m);s.setDate(m.getDate()+6);return dt>=m&&dt<=s;}
+function isTM(d){if(!d)return false;const dt=new Date(d+'T00:00:00');return dt.getMonth()===TODAY.getMonth()&&dt.getFullYear()===TODAY.getFullYear();}
+function dLabel(d,done){if(!d)return'No date';const df=Math.round((new Date(d+'T00:00:00')-TODAY)/864e5);if(done)return fmtS(d);if(df<0)return'Overdue '+Math.abs(df)+'d';if(df===0)return'Today';if(df===1)return'Tomorrow';return fmtS(d);}
+function fmtS(d){if(!d)return'';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function fmt(d){if(!d)return'—';const dt=typeof d==='string'?new Date(d+'T00:00:00'):d;return(dt.getMonth()+1)+'/'+(dt.getDate())+'/'+String(dt.getFullYear()).slice(2);}
+function isSea(a){return /seattle/i.test(a);}
+
+// ── PROPERTY DATA ──────────────────────────────────────────────────────────
+const DEFAULT_PROPS=[
+  {id:'p0',a:'13411 Meadow Rd Everett WA 98204',leaseEnd:null,leaseStart:null,status:'no-lease'},
+  {id:'p1',a:'2525 156th Pl SW Lynnwood WA 98087',leaseEnd:null,leaseStart:null,status:'vacant'},
+  {id:'p2',a:'12422 28th Ave W Everett WA 98204',leaseEnd:'5/9/26',leaseStart:'12/10/25',status:'active'},
+  {id:'p3',a:'18625 103rd Ave NE Bothell WA 98011',leaseEnd:'5/14/26',leaseStart:'12/15/25',status:'active'},
+  {id:'p4',a:'2220 NE 92nd St #102 Seattle WA 98115',leaseEnd:'5/29/26',leaseStart:'12/30/25',status:'active'},
+  {id:'p5',a:'2344 NE 90th St Seattle WA 98115',leaseEnd:'6/1/26',leaseStart:'1/2/26',status:'active'},
+  {id:'p6',a:'11505 3rd Pl W Mansanza Everett WA 98204',leaseEnd:'6/6/26',leaseStart:'1/7/26',status:'active'},
+  {id:'p7',a:'1926 189th St SW Lynnwood WA 98036',leaseEnd:'6/19/26',leaseStart:'1/20/26',status:'active'},
+  {id:'p8',a:'17708 42nd Ave SE Bothell WA 98012',leaseEnd:'7/31/26',leaseStart:'3/3/26',status:'active'},
+  {id:'p9',a:'8409 68th Pl NE Marysville WA 98270',leaseEnd:'7/31/26',leaseStart:'3/3/26',status:'active'},
+  {id:'p10',a:'12404 E Gibson Rd Apt H203 Everett WA 98204',leaseEnd:'8/12/26',leaseStart:'3/15/26',status:'active'},
+  {id:'p11',a:'2002 112th St SW Everett WA 98204',leaseEnd:'8/24/26',leaseStart:'3/27/26',status:'active'},
+  {id:'p12',a:'8021 Densmore Ave N Seattle WA 98103',leaseEnd:'8/26/26',leaseStart:'3/29/26',status:'active'},
+  {id:'p13',a:'9911 29th Ave SE Everett WA 98208',leaseEnd:'8/31/26',leaseStart:'4/3/26',status:'active'},
+  {id:'p14',a:'531 48th Pl SE Everett WA 98203',leaseEnd:'9/5/26',leaseStart:'4/8/26',status:'active'},
+  {id:'p15',a:'1526 192nd St SE Apt V2 Bothell WA 98012',leaseEnd:'10/9/26',leaseStart:'5/12/26',status:'active'},
+  {id:'p16',a:'3241 33rd Ave W 3241PK A Seattle WA 98199',leaseEnd:'10/31/2026',leaseStart:'6/3/2026',status:'active'},
+  {id:'p17',a:'2812 93rd Pl SE Everett WA 98208',leaseEnd:'2/20/27',leaseStart:'9/23/26',status:'active'},
+  {id:'p18',a:'11505 3rd Pl W Mansanb3 Everett WA 98204',leaseEnd:'2/28/27',leaseStart:'10/1/26',status:'active'},
+  {id:'p19',a:'2719 179th Pl NE Marysville WA 98271',leaseEnd:'2/28/27',leaseStart:'10/1/26',status:'active'},
+  {id:'p20',a:'7031 210th St SW #B Lynnwood WA 98036',leaseEnd:'2/28/27',leaseStart:'10/1/26',status:'active'},
+  {id:'p21',a:'2407 S Holgate St Seattle WA 98144',leaseEnd:'3/19/27',leaseStart:'10/20/26',status:'active'},
+  {id:'p22',a:'12809 16th Pl W Everett WA 98204',leaseEnd:'3/31/27',leaseStart:'11/1/26',status:'active'},
+  {id:'p23',a:'15621 26th Pl W Unit Lynnwood WA 98087',leaseEnd:'3/31/27',leaseStart:'11/1/26',status:'active'},
+  {id:'p24',a:'329 Lakeside Ave S LS2 Seattle WA 98144',leaseEnd:'3/31/27',leaseStart:'11/1/26',status:'active'},
+  {id:'p25',a:'9813 28th Ave SE Everett WA 98208',leaseEnd:'3/31/27',leaseStart:'11/1/26',status:'active'},
+  {id:'p26',a:'3241 33rd Ave W 3241PK Main Seattle WA 98199',leaseEnd:'3/31/27',leaseStart:'11/21/26',status:'active'},
+  {id:'p27',a:'329 Lakeside Ave S LS1 Seattle WA 98144',leaseEnd:'4/30/27',leaseStart:'12/1/26',status:'active'},
+  {id:'p28',a:'3920 154th Pl SE Bothell WA 98012',leaseEnd:'4/30/27',leaseStart:'12/1/26',status:'active'},
+  {id:'p29',a:'801 216th St SW Bothell WA 98021',leaseEnd:'4/30/27',leaseStart:'12/1/26',status:'active'},
+  {id:'p30',a:'8445 Delridge Way SW #B Seattle WA 98106',leaseEnd:'5/31/27',leaseStart:'1/1/27',status:'active'},
+  {id:'p31',a:'17331 Bothell Way NE Bothell WA 98011',leaseEnd:'9/30/27',leaseStart:'5/3/27',status:'active'},
+  {id:'p32',a:'17208 Bothell Way NE B Mexicana Bothell WA 98011',leaseEnd:'12/31/27',leaseStart:'8/3/27',status:'active'},
+  {id:'p33',a:'17208 Bothell Way NE A Salon Bothell WA 98011',leaseEnd:'12/13/29',leaseStart:'7/16/29',status:'active'},
+  {id:'p34',a:'17208 Bothell Way NE C+D Tos Bothell WA 98011',leaseEnd:'12/31/29',leaseStart:'8/3/29',status:'active'},
+];
+
+// ── MODULE TASKS ────────────────────────────────────────────────────────────
+const MTASKS={
+  renewals:[
+    {ph:'Inspection (5–8 months from lease start)',tasks:[{id:'ie',l:'Email PM: schedule inspection',r:'Ops'},{id:'it',l:'Email tenant: inspection notice',r:'Ops'},{id:'is',l:'Inspection scheduled in calendar',r:'Ops'},{id:'ic',l:'Inspection completed',r:'Sonya'},{id:'ir',l:'Inspection report + rent rec sent to owner',r:'Ops'}]},
+    {ph:'Owner notice (130 days / 180 days Seattle)',tasks:[{id:'od',l:'Owner rent increase decision received',r:'Ops'}]},
+    {ph:'Rent increase notice (115–100 days before end)',tasks:[{id:'re',l:'Email tenant: rent increase heads-up',r:'Ops'},{id:'rp',l:'PM posts notice on tenant door',r:'PM'}]},
+    {ph:'Renewal (85–90 days before end)',tasks:[{id:'rs',l:'Renewal sent to tenant',r:'Ops'},{id:'rc',l:'Tenant confirmed renewal decision',r:'Ops'}]},
+  ],
+  'owner-onboard':[
+    {ph:'Pre-Phase: Engagement & Handoff',tasks:[{id:'oo1',l:'PM makes initial contact, includes Ops on email',r:'PM'},{id:'oo2',l:'Ops Manager introduced in email thread',r:'PM'},{id:'oo3',l:'Owner directed to complete intake form on website',r:'PM'},{id:'oo4',l:'Responsibility handed off to Ops Manager',r:'PM'},{id:'oo5',l:'Intake form confirmed submitted and reviewed',r:'Ops'}]},
+    {ph:'Phase 1: Legal & AppFolio Setup',tasks:[{id:'oo6',l:'Legal ownership verified via county records',r:'Ops'},{id:'oo7',l:'All owners on county records confirmed on intake form',r:'Ops'},{id:'oo8',l:'ID verified for each owner',r:'Ops'},{id:'oo9',l:'New property created in AppFolio',r:'Ops'},{id:'oo10',l:'Owner record created in AppFolio',r:'Ops'},{id:'oo11',l:'Owner Agreement generated and sent for signature',r:'Ops'},{id:'oo12',l:'All pages signed and dated — uploaded to owner file',r:'Ops'}]},
+    {ph:'Phase 1: Required Documents',tasks:[{id:'oo13',l:'W-9 received and verified',r:'Ops'},{id:'oo14',l:'Copy of valid driver\'s license received',r:'Ops'},{id:'oo15',l:'House Data Sheet completed and received',r:'Ops'},{id:'oo16',l:'Insurance requirements provided to owner',r:'Ops'},{id:'oo17',l:'TMG listed as additional insured (confirmed pre move-in)',r:'Ops'}]},
+    {ph:'Phase 2: Property Preparation',tasks:[{id:'oo18',l:'Follow-up email sent re: timeline and prep needed',r:'Ops'},{id:'oo19',l:'Owner timeline confirmed in writing',r:'Ops'},{id:'oo20',l:'Utility providers identified on master checklist',r:'Ops'},{id:'oo21',l:'Utility responsibilities confirmed (tenant vs owner)',r:'Ops'},{id:'oo22',l:'All keys, mailbox keys, garage openers collected',r:'Ops'},{id:'oo23',l:'Keys logged in key tracking system',r:'Ops'},{id:'oo24',l:'Smoke detectors verified and functional',r:'PM'},{id:'oo25',l:'CO2 detectors verified and functional',r:'PM'}]},
+    {ph:'Phase 3: Property Condition',tasks:[{id:'oo26',l:'All personal belongings removed',r:'PM'},{id:'oo27',l:'Property professionally cleaned',r:'PM'},{id:'oo28',l:'Carpets professionally cleaned',r:'PM'},{id:'oo29',l:'HVAC filters cleaned or replaced',r:'PM'},{id:'oo30',l:'Chimney cleaned if applicable',r:'PM'}]},
+    {ph:'Phase 4: Final Review & Activation',tasks:[{id:'oo31',l:'Inspection scheduled with Sonya',r:'Ops'},{id:'oo32',l:'Final inspection completed',r:'Sonya'},{id:'oo33',l:'Signed Owner Contract in file',r:'Ops'},{id:'oo34',l:'W-9 in file',r:'Ops'},{id:'oo35',l:'Driver\'s license in file',r:'Ops'},{id:'oo36',l:'Insurance documentation in file',r:'Ops'},{id:'oo37',l:'House Data Sheet in file',r:'Ops'},{id:'oo38',l:'Property marked ready for marketing',r:'Ops'},{id:'oo39',l:'Leasing team notified',r:'Ops'}]},
+  ],
+  'tenant-onboard':[
+    {ph:'Pre-Phase: Application & Screening',tasks:[{id:'to1',l:'Application received',r:'Ops'},{id:'to2',l:'Thanks for applying email sent',r:'Ops'},{id:'to3',l:'Credit check run in AppFolio',r:'Ops'},{id:'to4',l:'Background check run in AppFolio',r:'Ops'},{id:'to5',l:'Income verified (pay stubs / bank statements / employer)',r:'Ops'},{id:'to6',l:'Rental history verified / previous landlords contacted',r:'Ops'},{id:'to7',l:'Application approved or denied',r:'Ops'},{id:'to8',l:'Approval email sent OR denial notice printed and mailed',r:'Ops'}]},
+    {ph:'Phase 1: Lease Setup',tasks:[{id:'to9',l:'Move-in date confirmed with owner',r:'Ops'},{id:'to10',l:'Lease generated in AppFolio',r:'Ops'},{id:'to11',l:'Lease terms confirmed (rent, deposit, pets, utilities)',r:'Ops'},{id:'to12',l:'Lease sent to tenant for signature via AppFolio',r:'Ops'},{id:'to13',l:'All signatures collected',r:'Ops'},{id:'to14',l:'Security deposit received within 48 hours',r:'Ops'},{id:'to15',l:'First month\'s rent received via ACH (5 days)',r:'Ops'},{id:'to16',l:'Pet deposit received via ACH if applicable (5 days)',r:'Ops'}]},
+    {ph:'Phase 2: Pre Move-In',tasks:[{id:'to17',l:'Property confirmed rent ready',r:'Ops'},{id:'to18',l:'Owner insurance confirmed on file before keys released',r:'Ops'},{id:'to19',l:'Utility landlord accounts set up (~1 week before start)',r:'Ops'},{id:'to20',l:'Tenant confirmed utilities set up in their name',r:'Ops'},{id:'to21',l:'Move-in inspection scheduled with Sonya',r:'Ops'},{id:'to22',l:'Move-in inspection report prepared',r:'Sonya'},{id:'to23',l:'Renter\'s insurance confirmed on file',r:'Ops'}]},
+    {ph:'Phase 3: Move-In Day',tasks:[{id:'to24',l:'Move-in inspection completed',r:'Sonya'},{id:'to25',l:'Inspection report emailed to tenant',r:'Ops'},{id:'to26',l:'Keys, mailbox keys, garage openers handed over',r:'PM'},{id:'to27',l:'Keys logged in key tracking system',r:'Ops'}]},
+    {ph:'Phase 4: Post Move-In',tasks:[{id:'to28',l:'Executed lease uploaded to AppFolio',r:'Ops'},{id:'to29',l:'Move-in inspection report uploaded to AppFolio',r:'Ops'},{id:'to30',l:'All deposits confirmed posted in AppFolio',r:'Ops'},{id:'to31',l:'Next steps email sent to tenant',r:'Ops'},{id:'to32',l:'Lease dates added to Lease Renewal Tracker',r:'Ops'}]},
+  ],
+  'tenant-offboard':[
+    {ph:'Trigger & Owner Notification',tasks:[{id:'tof1',l:'Offboarding triggered (non-renewal or 30-day no-sign)',r:'Ops'},{id:'tof2',l:'Owner notified tenant is not renewing (email sent)',r:'Ops'},{id:'tof3',l:'Owner confirmed: re-rent or not re-rent',r:'Ops'}]},
+    {ph:'Tenant Communication',tasks:[{id:'tof4',l:'Move-out instructions + cleaning checklist sent to tenant',r:'Ops'},{id:'tof5',l:'Tenant submitted notice to vacate via portal',r:'Ops'},{id:'tof6',l:'Tenant forwarding address added in portal',r:'Ops'},{id:'tof7',l:'Tenant confirmed eCheck for security deposit return',r:'Ops'},{id:'tof8',l:'2-week reminder email sent to tenant',r:'Ops'},{id:'tof9',l:'1-week heads-up email sent (lockbox coordination)',r:'Ops'}]},
+    {ph:'Property & Key Coordination',tasks:[{id:'tof10',l:'PM coordinated to place lockbox at least 1 week before end',r:'PM'},{id:'tof11',l:'Lockbox placed on property confirmed',r:'PM'},{id:'tof12',l:'Move-out inspection scheduled with Sonya',r:'Ops'}]},
+    {ph:'Move-Out',tasks:[{id:'tof13',l:'Move-out inspection completed by Sonya',r:'Sonya'},{id:'tof14',l:'Inspection compared against move-in report',r:'Sonya'},{id:'tof15',l:'Damages documented',r:'Sonya'},{id:'tof16',l:'Security deposit deductions determined',r:'Ops'},{id:'tof17',l:'Security deposit returned within 21 days (WA law)',r:'Ops'},{id:'tof18',l:'All keys confirmed returned',r:'PM'}]},
+  ],
+  'turnover':[
+    {ph:'Pre Move-Out Assessment',tasks:[{id:'tv1',l:'PM visits property ~2 weeks before lease end',r:'PM'},{id:'tv2',l:'Additional work needed identified and documented',r:'PM'},{id:'tv3',l:'Cleaners coordinated and scheduled',r:'Ops'},{id:'tv4',l:'Carpet cleaners coordinated and scheduled',r:'Ops'},{id:'tv5',l:'Maintenance / repairs coordinated if needed',r:'Ops'},{id:'tv6',l:'Updated rent analysis completed by PM',r:'PM'},{id:'tv7',l:'New rent amount shared with owner and approved',r:'Ops'}]},
+    {ph:'Turnover Execution (goal: 1 week)',tasks:[{id:'tv8',l:'Professional cleaning completed',r:'PM'},{id:'tv9',l:'Carpet cleaning completed',r:'PM'},{id:'tv10',l:'All maintenance and repairs completed',r:'PM'},{id:'tv11',l:'Updated photos taken if needed',r:'PM'},{id:'tv12',l:'Property re-listed at approved new rent',r:'Ops'}]},
+    {ph:'Owner Communication',tasks:[{id:'tv13',l:'Pre-turnover assessment update sent to owner',r:'Ops'},{id:'tv14',l:'Turnover complete — ready to re-list email sent',r:'Ops'}]},
+    {ph:'Next Steps',tasks:[{id:'tv15',l:'Property moved to Tenant Onboarding (if re-renting)',r:'Ops'},{id:'tv16',l:'Property moved to Owner Offboarding (if not re-renting)',r:'Ops'}]},
+  ],
+  'owner-offboard':[
+    {ph:'Initiation (all paths)',tasks:[{id:'ooff1',l:'Offboarding trigger confirmed',r:'Ops'},{id:'ooff2',l:'Standard notice period confirmed',r:'Ops'},{id:'ooff3',l:'Termination of Management Agreement sent for signature',r:'Ops'},{id:'ooff4',l:'Signed termination agreement received and filed',r:'Ops'}]},
+    {ph:'Path 1 — Owner stops renting',tasks:[{id:'ooff5',l:'Property turnover completed',r:'Ops'},{id:'ooff6',l:'Security deposit returned to tenant (within 21 days)',r:'Ops'},{id:'ooff7',l:'All keys returned to owner',r:'PM'},{id:'ooff8',l:'Owner account closed in AppFolio',r:'Ops'},{id:'ooff9',l:'Final owner disbursement processed',r:'Ops'}]},
+    {ph:'Path 2 — Switching PM company',tasks:[{id:'ooff10',l:'Offboarding effective date confirmed (end of month)',r:'Ops'},{id:'ooff11',l:'Security deposit transferred to new PM company',r:'Ops'},{id:'ooff12',l:'All tenant files sent to new PM',r:'Ops'},{id:'ooff13',l:'All property files sent to new PM',r:'Ops'},{id:'ooff14',l:'Tenant notification email sent re: management change',r:'Ops'},{id:'ooff15',l:'New PM company notified with full handoff package',r:'Ops'},{id:'ooff16',l:'Owner account closed in AppFolio',r:'Ops'},{id:'ooff17',l:'Final owner disbursement processed',r:'Ops'}]},
+    {ph:'Path 3 — Owner self-managing',tasks:[{id:'ooff18',l:'Offboarding effective date confirmed',r:'Ops'},{id:'ooff19',l:'Security deposit transferred directly to owner',r:'Ops'},{id:'ooff20',l:'All tenant files sent to owner',r:'Ops'},{id:'ooff21',l:'All property files sent to owner',r:'Ops'},{id:'ooff22',l:'Tenant notification email sent re: management change',r:'Ops'},{id:'ooff23',l:'Owner walked through AppFolio offboarding',r:'Ops'},{id:'ooff24',l:'Owner account closed in AppFolio',r:'Ops'},{id:'ooff25',l:'Final owner disbursement processed',r:'Ops'}]},
+  ],
+};
+
+// ── EMAIL TEMPLATES ─────────────────────────────────────────────────────────
+const TPLS={
+  renewals:[
+    {ph:'Inspection',items:[
+      {n:'PM: schedule inspection',tag:'To PM',b:'Subject: Inspection Due – [ADDRESS]\n\nHi [PM Name],\n\nWe are coming up on the inspection window for [ADDRESS]. Please arrange availability and reach out to the tenant to coordinate a date and time.\n\nOnce confirmed, share the scheduled date so we can calendar it.\n\nThanks,\n[Your Name]\nTMG Property Management'},
+      {n:'Tenant: inspection notice',tag:'To Tenant',b:'Subject: Upcoming Property Inspection – [ADDRESS]\n\nHi [Tenant Name],\n\nAs part of our routine property care, we will be conducting a property inspection in the coming weeks. Your property manager will be in touch to coordinate a date and time.\n\nThank you for your cooperation.\n\nBest,\nTMG Property Management'},
+      {n:'Owner: inspection report + rent rec',tag:'To Owner',b:'Subject: Inspection Report & Lease Update – [ADDRESS]\n\nHi [Owner Name],\n\nPlease find attached the completed inspection report for [ADDRESS].\n\nOverall condition: [SUMMARY]\n\nRent increase recommendation: $[AMOUNT]/mo (currently $[CURRENT])\nRenewal recommendation: [Renew / Non-renew]\n\nPlease confirm your decision by [DEADLINE DATE].\n\nBest,\n[Your Name]\nTMG Property Management'},
+    ]},
+    {ph:'Owner notice',items:[
+      {n:'Owner: decision follow-up',tag:'To Owner',b:'Subject: Lease Decision Needed – [ADDRESS]\n\nHi [Owner Name],\n\nFollowing up on the lease renewal decision for [ADDRESS]. We need your direction by [DATE] to ensure all notices are delivered within the legal timeframe.\n\n1. Will there be a rent increase? If so, what amount?\n2. Do you wish to renew the lease?\n\nThank you,\n[Your Name]\nTMG Property Management'},
+    ]},
+    {ph:'Rent increase',items:[
+      {n:'Tenant: rent increase heads-up',tag:'To Tenant',b:'Subject: Upcoming Lease Renewal Notice – [ADDRESS]\n\nHi [Tenant Name],\n\nWe wanted to give you advance notice that there will be a rent adjustment as part of your upcoming lease renewal. Your property manager will be delivering an official written notice to your door shortly.\n\nBest,\nTMG Property Management'},
+      {n:'Tenant: no rent increase',tag:'To Tenant',b:'Subject: Lease Renewal Update – [ADDRESS]\n\nHi [Tenant Name],\n\nGreat news — there will be no rent increase for your upcoming lease renewal. We will be in touch soon with renewal details.\n\nThank you for being a valued tenant.\n\nBest,\nTMG Property Management'},
+    ]},
+    {ph:'Renewal',items:[
+      {n:'Tenant: renewal offer',tag:'To Tenant',b:'Subject: Your Lease Renewal – [ADDRESS]\n\nHi [Tenant Name],\n\nYour lease at [ADDRESS] expires on [LEASE END DATE]. We are pleased to offer a renewal:\n\n- New monthly rent: $[AMOUNT]\n- Lease term: [START] – [END]\n\nPlease confirm by [DEADLINE]. If we do not hear from you, we will assume you do not wish to renew.\n\nBest,\nTMG Property Management'},
+      {n:'Tenant: renewal follow-up',tag:'To Tenant',b:'Subject: Follow-Up: Renewal Decision Needed – [ADDRESS]\n\nHi [Tenant Name],\n\nWe have not received a response regarding your lease renewal at [ADDRESS], which expires [LEASE END DATE]. Your deadline is [DEADLINE]. Please reply at your earliest convenience.\n\nThank you,\nTMG Property Management'},
+    ]},
+  ],
+  'owner-onboard':[{ph:'Property preparation',items:[{n:'Owner: next steps & timeline',tag:'To Owner',b:'Subject: Next Steps and Timeline for Your Property\n\nHi [Owner Name],\n\nNow that your management agreement is complete, I want to connect on next steps and get a clear timeline for your property.\n\nCan you please let me know:\n- Your target timeline for having the property rent ready\n- Any work still outstanding (cleaning, repairs, maintenance, etc.)\n\nBased on what is needed, we will outline a realistic timeline for final preparation, professional cleaning, photos, and listing.\n\nLet me know if you have any questions.\n\nBest,\n[Your Name]\nTMG Property Management'}]}],
+  'tenant-onboard':[
+    {ph:'Application',items:[
+      {n:'Thanks for applying',tag:'To Tenant',b:'Subject: Thank You for Your Application – [ADDRESS]\n\nHi [Applicant Name],\n\nThank you for submitting your application for [ADDRESS]. We have received it and will be reviewing it shortly.\n\nWe will be in touch with a decision as soon as our review is complete.\n\nBest,\nTMG Property Management'},
+      {n:'Application approved',tag:'To Tenant',b:'Subject: Application Approved – [ADDRESS]\n\nHi [Applicant Name],\n\nGreat news — your application for [ADDRESS] has been approved!\n\nNext steps:\n1. Review and sign your lease (coming via AppFolio shortly)\n2. Security deposit of $[AMOUNT] due within 48 hours of signing\n3. First month\'s rent of $[AMOUNT] due 5 days prior to move-in via ACH in AppFolio\n\nWelcome to TMG!\n\nBest,\n[Your Name]\nTMG Property Management'},
+    ]},
+    {ph:'Post-lease signing',items:[
+      {n:'Next steps after lease signing',tag:'To Tenant',b:'Subject: Next Steps – Your Move-In at [ADDRESS]\n\nHi [Tenant Name],\n\nThank you for signing your lease! Here is what happens next before your move-in on [MOVE-IN DATE]:\n\n1. Utilities — Please set up the following in your name before move-in: [LIST UTILITIES]\n2. Renter\'s insurance — Required before keys are released. Please provide proof to our office.\n3. Move-in inspection — Scheduled for [DATE] at [TIME].\n4. Keys — [Handed over at inspection / Lockbox will be placed at the property]\n\nBest,\n[Your Name]\nTMG Property Management'},
+      {n:'Welcome email (post move-in)',tag:'To Tenant',b:'Subject: Welcome to Your New Home – [ADDRESS]\n\nHi [Tenant Name],\n\nWelcome! Here is everything you need:\n\nRent payments: Log in to your AppFolio tenant portal at [PORTAL LINK]\nMaintenance requests: Submit through the AppFolio tenant portal\nEmergency contact: [EMERGENCY NUMBER]\nOur office: [OFFICE HOURS AND CONTACT]\n\nThank you for choosing TMG Property Management.\n\nBest,\n[Your Name]\nTMG Property Management'},
+    ]},
+  ],
+  'tenant-offboard':[
+    {ph:'Owner notification',items:[{n:'Owner: tenant not renewing',tag:'To Owner',b:'Subject: Update on Lease Renewal – [ADDRESS]\n\nHi [Owner Name],\n\n[Tenant Name] at [ADDRESS] will not be renewing their lease, which ends on [LEASE END DATE].\n\nPlease let us know:\n1. Would you like us to re-rent the property?\n2. Are there specific updates or repairs you would like completed during turnover?\n\nWe will have a property manager do a walk-through approximately 2 weeks before the lease ends to assess any work needed.\n\nBest,\n[Your Name]\nTMG Property Management'}]},
+    {ph:'Tenant communication',items:[
+      {n:'Move-out instructions + checklist',tag:'To Tenant',b:'Subject: Move-Out Instructions – [ADDRESS]\n\nHi [Tenant Name],\n\nAs your lease at [ADDRESS] ends on [LEASE END DATE], here is your move-out checklist:\n\n- Remove all personal belongings\n- Clean all rooms, appliances, and fixtures thoroughly\n- Have carpets professionally cleaned\n- Remove all trash and debris\n- Return all keys, mailbox keys, and garage openers\n\nNOTICE TO VACATE: Please submit through the tenant portal, including your forwarding address and eCheck confirmation for security deposit return.\n\nBest,\nTMG Property Management'},
+      {n:'2-week reminder',tag:'To Tenant',b:'Subject: Move-Out Reminder – 2 Weeks Away – [ADDRESS]\n\nHi [Tenant Name],\n\nJust a reminder that your lease at [ADDRESS] ends in 2 weeks on [LEASE END DATE]. Please make sure your move-out checklist is on track and your Notice to Vacate has been submitted through the portal.\n\nBest,\nTMG Property Management'},
+      {n:'1-week reminder + lockbox',tag:'To Tenant',b:'Subject: Move-Out – 1 Week Reminder – [ADDRESS]\n\nHi [Tenant Name],\n\nYour lease ends in one week on [LEASE END DATE].\n\nKey return: A lockbox will be placed at the property. Please return all keys, mailbox keys, and garage openers to the lockbox by [LEASE END DATE].\n\nPlease ensure the property is fully vacated and cleaned by your lease end date.\n\nThank you,\nTMG Property Management'},
+    ]},
+  ],
+  'turnover':[{ph:'Owner communication',items:[
+    {n:'Pre-turnover assessment',tag:'To Owner',b:'Subject: Property Turnover Update – [ADDRESS]\n\nHi [Owner Name],\n\nOur property manager completed a pre-turnover walk-through at [ADDRESS].\n\nWork needed: [LIST ITEMS]\nEstimated timeline: [TIMELINE]\nEstimated cost: $[COST]\n\nUpdated rent analysis: We recommend listing at $[NEW RENT]/mo (previous: $[OLD RENT]/mo).\n\nPlease confirm you approve moving forward.\n\nBest,\n[Your Name]\nTMG Property Management'},
+    {n:'Turnover complete — ready to list',tag:'To Owner',b:'Subject: Property Ready for Rent – [ADDRESS]\n\nHi [Owner Name],\n\n[ADDRESS] has completed turnover and is ready to be listed.\n\nWork completed:\n- Professional cleaning\n- Carpet cleaning\n- [ANY REPAIRS]\n\nListing rent: $[AMOUNT]/mo\n\nWe will begin marketing immediately.\n\nBest,\n[Your Name]\nTMG Property Management'},
+  ]}],
+  'owner-offboard':[{ph:'All paths',items:[{n:'Tenant: management change notice',tag:'To Tenant',b:'Subject: Important Notice: Change in Property Management – [ADDRESS]\n\nDear [Tenant Name],\n\nEffective [DATE], TMG Property Management will no longer be managing [ADDRESS].\n\nYour new point of contact:\n[NEW PM / OWNER NAME]\n[CONTACT INFORMATION]\n\nPlease direct all future rent payments, maintenance requests, and communications to them. Your lease terms remain unchanged. Your security deposit of $[AMOUNT] will be transferred to [NEW PM / OWNER].\n\nThank you for being a valued tenant.\n\nSincerely,\nTMG Property Management'}]}],
+};
+
+// ── STATE ───────────────────────────────────────────────────────────────────
+const STORE = 'tmg_v3';
+let S = {properties:[], tasks:{}, notes:{}, pf:{}, emails:[], todos:[], contacts:[], customTpls:{}};
+function lS(){try{const d=localStorage.getItem(STORE);if(d){const p=JSON.parse(d);S={...S,...p};}}catch(e){}if(!S.properties||!S.properties.length)S.properties=JSON.parse(JSON.stringify(DEFAULT_PROPS));if(!S.todos)S.todos=[];if(!S.contacts)S.contacts=[];if(!S.customTpls)S.customTpls=[];}
+function sS(){try{localStorage.setItem(STORE,JSON.stringify(S));setSS('saved');setTimeout(()=>setSS('ready'),1400);}catch(e){setSS('error');}}
+function setSS(s){const dot=document.getElementById('syncDot'),lbl=document.getElementById('syncLbl');if(!dot||!lbl)return;const m={saving:['#EF9F27','Saving...'],saved:['#639922','Saved'],error:['#E24B4A','Error'],ready:['#639922','Ready']};const[c,t]=m[s]||['#888','—'];dot.style.background=c;lbl.textContent=t;}
+function gT(mod,pid,tid){return!!(S.tasks[mod]&&S.tasks[mod][pid]&&S.tasks[mod][pid][tid]);}
+function sT(mod,pid,tid,v){if(!S.tasks[mod])S.tasks[mod]={};if(!S.tasks[mod][pid])S.tasks[mod][pid]={};S.tasks[mod][pid][tid]=v;sS();}
+function gN(mod,pid){return S.notes[mod+pid]||'';}
+function sN(mod,pid,v){S.notes[mod+pid]=v;sS();}
+function gPF(pid,k){return(S.pf[pid]||{})[k]||'';}
+function sPF(pid,k,v){if(!S.pf[pid])S.pf[pid]={};S.pf[pid][k]=v;sS();}
+function mPct(mod,pid){const defs=MTASKS[mod];if(!defs)return 0;const all=defs.flatMap(ph=>ph.tasks);return Math.round(all.filter(t=>gT(mod,pid,t.id)).length/all.length*100);}
+function calcRD(p){const le=parseDate(p.leaseEnd),ls=parseDate(p.leaseStart);if(!le)return null;const sea=isSea(p.a);return{le,ls,sea,inspW:ls?{f:addD(ls,150),t:addD(ls,240)}:null,ownerBy:addD(le,-(sea?180:130)),riW:{f:addD(le,-115),t:addD(le,-100)},renSend:addD(le,-87),tenDl:addD(le,-30)};}
+function rUrg(p){const st=calcRD(p);if(!st||!st.le)return'none';const de=Math.round((st.le-TODAY)/864e5);if(de<0)return'done';const d1=Math.round((st.ownerBy-TODAY)/864e5),d2=Math.round((st.riW.f-TODAY)/864e5),d3=Math.round((st.renSend-TODAY)/864e5);if(d1<=7||d2<=7||d3<=7)return'urgent';if(d1<=30||d2<=30||d3<=30)return'upcoming';return'ok';}
+
+// ── TODO SYSTEM ─────────────────────────────────────────────────────────────
+function genAutoTodos(){
+  return S.properties.flatMap((p,i)=>{
+    const st=calcRD(p);if(!st)return[];
+    return[
+      {id:'a-own-'+p.id,title:'Owner: rent increase decision due',prop:p.a.split(' ').slice(0,4).join(' '),due:d2iso(st.ownerBy),assign:'Ops Manager',module:'Lease Renewal',auto:true,done:false,subtasks:[],notes:''},
+      {id:'a-ri-'+p.id,title:'Rent increase notice window opens',prop:p.a.split(' ').slice(0,4).join(' '),due:d2iso(st.riW.f),assign:'Ops Manager',module:'Lease Renewal',auto:true,done:false,subtasks:[],notes:''},
+      {id:'a-ren-'+p.id,title:'Send renewal offer to tenant',prop:p.a.split(' ').slice(0,4).join(' '),due:d2iso(st.renSend),assign:'Ops Manager',module:'Lease Renewal',auto:true,done:false,subtasks:[],notes:''},
+    ];
+  });
+}
+function allTodos(){
+  const auto=genAutoTodos();
+  const aIds=new Set(auto.map(t=>t.id));
+  const merged=auto.map(at=>{const st=(S.todos||[]).find(s=>s.id===at.id);return st?{...at,...st,auto:true}:at;});
+  const manual=(S.todos||[]).filter(t=>!aIds.has(t.id));
+  return[...merged,...manual].sort((a,b)=>{if(!a.due&&!b.due)return 0;if(!a.due)return 1;if(!b.due)return-1;return a.due.localeCompare(b.due);});
+}
+function saveTodo(t){const i=(S.todos||[]).findIndex(s=>s.id===t.id);if(i>=0)S.todos[i]=t;else{if(!S.todos)S.todos=[];S.todos.push(t);}sS();}
+function deleteTodo(id){S.todos=(S.todos||[]).filter(t=>t.id!==id);sS();}
+
+// ── NAVIGATION ──────────────────────────────────────────────────────────────
+let curPage='dashboard';
+let calY=TODAY.getFullYear(),calM=TODAY.getMonth();
+let todoView='week';
+let ntTimers={};
+
+function go(page){
+  curPage=page;
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('nav-'+page)?.classList.add('on');
+  document.getElementById('pageTitle').textContent=PTITLES[page]||page;
+  render(page);
+}
+function render(page){
+  const el=document.getElementById('mainContent');
+  if(page==='dashboard') el.innerHTML=rDash();
+  else if(page==='properties') el.innerHTML=rProps();
+  else if(page==='email-tracker') el.innerHTML=rEmail();
+  else if(page==='contacts') el.innerHTML=rContacts();
+  else if(page==='templates') el.innerHTML=rTemplates();
+  else if(page==='admin') el.innerHTML=rAdmin();
+  else el.innerHTML=rMod(page);
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────────────────────
+function rDash(){
+  const all=allTodos();
+  const ov=all.filter(t=>!t.done&&isOD(t.due)).length;
+  const tw=all.filter(t=>!t.done&&isTW(t.due)).length;
+  const dn=all.filter(t=>t.done).length;
+  const at=all.filter(t=>t.auto&&!t.done).length;
+  let urgItems=[],upItems=[];
+  S.properties.forEach(p=>{
+    const u=rUrg(p),st=calcRD(p);
+    if(u==='urgent') urgItems.push({addr:p.a,mod:'Lease Renewal',detail:st?Math.round((st.le-TODAY)/864e5)+' days to lease end':'',page:'renewals'});
+    else if(u==='upcoming') upItems.push({addr:p.a,mod:'Lease Renewal',detail:st?Math.round((st.le-TODAY)/864e5)+' days to lease end':'',page:'renewals'});
+    const pf=S.pf[p.id]||{};
+    ['owner-onboard','tenant-onboard','tenant-offboard','turnover','owner-offboard'].forEach(mod=>{
+      if(pf['mod_'+mod.replace(/-/g,'_')]==='active'){const pct=mPct(mod,p.id);if(pct<100)upItems.push({addr:p.a,mod:PTITLES[mod],detail:pct+'% complete',page:mod});}
+    });
+  });
+  const emailPending=(S.emails||[]).filter(e=>e.status==='waiting'||e.status==='followup').length;
+  return`
+  <div class="dash-grid">
+    <div class="mc"><div class="ml">Renewal action needed</div><div class="mv r">${urgItems.length}</div></div>
+    <div class="mc"><div class="ml">To-dos overdue</div><div class="mv r">${ov}</div></div>
+    <div class="mc"><div class="ml">Due this week</div><div class="mv a">${tw}</div></div>
+    <div class="mc"><div class="ml">Emails awaiting reply</div><div class="mv" style="color:#854F0B">${emailPending}</div></div>
+  </div>
+  ${urgItems.length>0?`<div class="sh-row"><span class="sh">Lease renewals — action needed</span><span class="sh-cnt">${urgItems.length}</span></div><div class="ul">${urgItems.map(i=>`<div class="ui" onclick="go('${i.page}')"><div><div class="ua">${i.addr}</div><div style="font-size:11px;color:#888">${i.mod}</div></div><span class="badge br">Action needed</span><span style="font-size:11px;color:#888;margin-left:auto">${i.detail}</span></div>`).join('')}</div>`:''}
+  <div style="margin-top:.5rem">
+    <div class="dash-tabs">
+      <button class="dt ${todoView==='week'?'on':''}" onclick="setTV('week',this)">This week</button>
+      <button class="dt ${todoView==='month'?'on':''}" onclick="setTV('month',this)">This month</button>
+      <button class="dt ${todoView==='cal'?'on':''}" onclick="setTV('cal',this)">Calendar</button>
+      <button class="dt ${todoView==='all'?'on':''}" onclick="setTV('all',this)">All tasks</button>
+    </div>
+    <div class="add-form ${document.getElementById('addTodoForm')?.classList.contains('show')?'show':''}" id="addTodoForm">
+      <h3>New task</h3>
+      <div class="frow">
+        <input class="fi" id="ft-title" placeholder="Task title..." style="flex:2;min-width:180px">
+        <select class="fi" id="ft-assign">
+          <option value="">Assign to...</option>
+          <option>Ops Manager</option><option>PM</option><option>Sonya</option><option>Admin</option>
+        </select>
+      </div>
+      <div class="frow">
+        <input class="fi" id="ft-prop" placeholder="Property / context (optional)">
+        <input class="fi" id="ft-due" type="date">
+        <select class="fi" id="ft-mod">
+          <option value="General">General</option>
+          <option>Lease Renewal</option><option>Owner Onboarding</option><option>Tenant Onboarding</option>
+          <option>Tenant Offboarding</option><option>Property Turnover</option><option>Owner Offboarding</option>
+        </select>
+      </div>
+      <div class="fact">
+        <button class="fb2 p" onclick="addTodo()">Add task</button>
+        <button class="fb2" onclick="document.getElementById('addTodoForm').classList.remove('show')">Cancel</button>
+      </div>
+    </div>
+    <div class="todo-toolbar">
+      <span style="font-size:13px;font-weight:700;color:#1a1a1a">${{week:'This week',month:'This month',cal:'Calendar view',all:'All tasks'}[todoView]}</span>
+      <button class="add-task-btn" onclick="document.getElementById('addTodoForm').classList.toggle('show')">+ Add task</button>
+    </div>
+    <div id="todoView">${renderTodoView()}</div>
+  </div>`;
+}
+
+function setTV(v,btn){todoView=v;document.querySelectorAll('.dt').forEach(b=>b.classList.remove('on'));btn?.classList.add('on');const lv=document.getElementById('todoView');if(lv)lv.innerHTML=renderTodoView();const tl=document.querySelector('.todo-toolbar span');if(tl)tl.textContent={week:'This week',month:'This month',cal:'Calendar view',all:'All tasks'}[v]||v;}
+
+function renderTodoView(){
+  const all=allTodos();
+  if(todoView==='cal') return rCal(all);
+  let fil=all;
+  if(todoView==='week') fil=all.filter(t=>(!t.done&&isOD(t.due))||isTW(t.due));
+  else if(todoView==='month') fil=all.filter(t=>(!t.done&&isOD(t.due))||isTM(t.due));
+  const ovd=fil.filter(t=>!t.done&&isOD(t.due));
+  const up=fil.filter(t=>!t.done&&!isOD(t.due));
+  const dn=fil.filter(t=>t.done);
+  let h='';
+  if(ovd.length>0) h+=`<div class="sh-row"><span class="sh" style="color:#A32D2D">Overdue</span><span class="sh-cnt" style="background:#FCEBEB;color:#A32D2D">${ovd.length}</span></div><div class="tlist">${ovd.map(rTodoCard).join('')}</div>`;
+  if(up.length>0) h+=`<div class="sh-row"><span class="sh">Upcoming</span><span class="sh-cnt">${up.length}</span></div><div class="tlist">${up.map(rTodoCard).join('')}</div>`;
+  if(dn.length>0) h+=`<div class="sh-row"><span class="sh" style="color:#888">Completed</span><span class="sh-cnt">${dn.length}</span></div><div class="tlist">${dn.map(rTodoCard).join('')}</div>`;
+  if(!h) h='<div class="empty">No tasks for this period. Click "+ Add task" to get started.</div>';
+  return h;
+}
+
+function rTodoCard(t){
+  const od=isOD(t.due)&&!t.done;
+  const dl=dLabel(t.due,t.done);
+  const mc={'Lease Renewal':'ba','Owner Onboarding':'bp','Tenant Onboarding':'bg','Tenant Offboarding':'br','Property Turnover':'ba','Owner Offboarding':'br','General':'bb'};
+  const ac={'Ops Manager':'bb','PM':'bg','Sonya':'bp','Admin':'bgr'};
+  const sd=(t.subtasks||[]).filter(s=>s.done).length,st=(t.subtasks||[]).length;
+  const isEx=document.getElementById('todo-'+t.id)?.classList.contains('ex');
+  return`<div class="tc ${od?'ov':''} ${t.done?'dk':''} ${isEx?'ex':''}" id="todo-${t.id}">
+    <div class="tmain">
+      <div class="chk ${t.done?'on':''}" onclick="togTodo('${t.id}',event)"></div>
+      <div class="tcont" onclick="togTodoEx('${t.id}')">
+        <div class="ttl ${t.done?'dk':''}">${t.title}</div>
+        <div class="tmeta">
+          ${t.prop?`<span class="tprop">${t.prop}</span>`:''}
+          ${t.module?`<span class="badge ${mc[t.module]||'bgr'}">${t.module}</span>`:''}
+          ${t.assign?`<span class="badge ${ac[t.assign]||'bgr'}">${t.assign}</span>`:''}
+          ${t.auto?`<span class="badge bau">Auto</span>`:''}
+          ${st>0?`<span style="font-size:10px;color:#888">${sd}/${st} subtasks</span>`:''}
+        </div>
+      </div>
+      <div class="tright">
+        <span class="tdue ${od?'ov':''}">${dl}</span>
+        <button class="exbtn" onclick="togTodoEx('${t.id}')">▼</button>
+      </div>
+    </div>
+    <div class="texp">
+      ${st>0?`<div class="slist">${(t.subtasks||[]).map((s,si)=>`<div class="sub"><div class="schk ${s.done?'on':''}" onclick="togSub('${t.id}',${si})"></div><span class="stl ${s.done?'dk':''}">${s.title}</span>${s.assign?`<span class="badge bgr" style="font-size:9px">${s.assign}</span>`:''} ${s.due?`<span class="sdue ${isOD(s.due)?'ov':''}">${fmtS(s.due)}</span>`:''}</div>`).join('')}</div>`:''}
+      <div class="subrow">
+        <input class="mi" id="sub-inp-${t.id}" placeholder="Add subtask...">
+        <input class="mi" id="sub-due-${t.id}" type="date" style="max-width:130px;flex:unset">
+        <select class="mi" id="sub-asgn-${t.id}" style="max-width:120px;flex:unset"><option value="">Assign...</option><option>Ops Manager</option><option>PM</option><option>Sonya</option><option>Admin</option></select>
+        <button class="mbtn" onclick="addSubtask('${t.id}')">+ Add</button>
+      </div>
+      <div class="arow">
+        <span class="albl">Assigned:</span>
+        <select class="asel" onchange="updTodoA('${t.id}',this.value)"><option value="">—</option><option ${t.assign==='Ops Manager'?'selected':''}>Ops Manager</option><option ${t.assign==='PM'?'selected':''}>PM</option><option ${t.assign==='Sonya'?'selected':''}>Sonya</option><option ${t.assign==='Admin'?'selected':''}>Admin</option></select>
+        <span class="albl">Due:</span>
+        <input type="date" class="mi" value="${t.due||''}" onchange="updTodoD('${t.id}',this.value)" style="max-width:140px;flex:unset">
+        ${!t.auto?`<button class="delbtn" onclick="delTodoItem('${t.id}')">Delete</button>`:''}
+      </div>
+      <div class="nrow"><span class="albl">Notes:</span><input class="ninp" value="${(t.notes||'').replace(/"/g,'&quot;')}" placeholder="Notes..." onchange="updTodoN('${t.id}',this.value)"></div>
+    </div>
+  </div>`;
+}
+
+function rCal(tasks){
+  const first=new Date(calY,calM,1),last=new Date(calY,calM+1,0);
+  let cells=[];
+  for(let i=0;i<first.getDay();i++) cells.push(null);
+  for(let d=1;d<=last.getDate();d++) cells.push(new Date(calY,calM,d));
+  while(cells.length%7) cells.push(null);
+  const byDate={};
+  tasks.forEach(t=>{if(t.due){if(!byDate[t.due])byDate[t.due]=[];byDate[t.due].push(t);}});
+  return`<div class="cal-wrap">
+    <div class="cal-hdr">
+      <button class="cnav" onclick="calNav(-1)">◀</button>
+      <span class="cal-mo">${MONTHS[calM]} ${calY}</span>
+      <button class="cnav" onclick="calNav(1)">▶</button>
+    </div>
+    <div class="dl-hdr">${DAYS.map(d=>`<div class="dlbl">${d}</div>`).join('')}</div>
+    <div class="dgrid">${cells.map(c=>{
+      if(!c)return`<div class="cell om"><div class="cdate"></div></div>`;
+      const ci=d2iso(c),isT=ci===d2iso(TODAY);
+      const evts=byDate[ci]||[];
+      return`<div class="cell ${isT?'tod':''}" onclick="openCalModal('${ci}')">
+        <div class="cdate">${c.getDate()}</div>
+        ${evts.slice(0,3).map(t=>`<div class="cev ${t.done?'done-ev':isOD(t.due)?'ov-ev':t.auto?'auto':'manual'}" title="${t.title}" onclick="event.stopPropagation();togTodoEx('${t.id}')">${t.title.length>18?t.title.slice(0,16)+'…':t.title}</div>`).join('')}
+        ${evts.length>3?`<div style="font-size:9px;color:#aaa;padding:1px 3px">+${evts.length-3} more</div>`:''}
+        <div class="cal-add-hint">+ add</div>
+      </div>`;
+    }).join('')}</div>
+  </div>
+  ${tasks.filter(t=>document.getElementById('todo-'+t.id)?.classList.contains('ex')).length>0?'':''} `;
+}
+
+function calNav(dir){calM+=dir;if(calM<0){calM=11;calY--;}if(calM>11){calM=0;calY++;}const lv=document.getElementById('todoView');if(lv)lv.innerHTML=renderTodoView();}
+
+// MODAL for calendar click
+function openCalModal(isoDate){
+  const m=document.getElementById('modalBg');
+  const dt=new Date(isoDate+'T00:00:00');
+  document.getElementById('modalTitle').textContent='Add task — '+MONTHS[dt.getMonth()]+' '+dt.getDate();
+  document.getElementById('m-due').value=isoDate;
+  document.getElementById('m-title').value='';
+  document.getElementById('m-prop').value='';
+  document.getElementById('m-assign').value='';
+  document.getElementById('m-mod').value='General';
+  m.classList.add('show');
+}
+function closeModal(){document.getElementById('modalBg').classList.remove('show');}
+function saveModal(){
+  const title=document.getElementById('m-title')?.value?.trim();
+  if(!title)return;
+  if(!S.todos)S.todos=[];
+  S.todos.push({id:'m-'+Date.now(),title,prop:document.getElementById('m-prop')?.value||'',due:document.getElementById('m-due')?.value||null,assign:document.getElementById('m-assign')?.value||'',module:document.getElementById('m-mod')?.value||'General',auto:false,done:false,subtasks:[],notes:''});
+  sS();closeModal();
+  const lv=document.getElementById('todoView');if(lv)lv.innerHTML=renderTodoView();
+}
+document.getElementById('modalBg').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// TODO ACTIONS
+function togTodoEx(id){
+  const el=document.getElementById('todo-'+id);if(!el)return;
+  el.classList.toggle('ex');
+  const b=el.querySelector('.exbtn');if(b)b.textContent=el.classList.contains('ex')?'▲':'▼';
+}
+function togTodo(id,e){
+  e.stopPropagation();
+  const all=allTodos();const t=all.find(x=>x.id===id);if(!t)return;
+  t.done=!t.done;saveTodo(t);
+  const lv=document.getElementById('todoView');if(lv)lv.innerHTML=renderTodoView();
+}
+function togSub(tid,si){
+  const all=allTodos();const t=all.find(x=>x.id===tid);if(!t||!t.subtasks)return;
+  t.subtasks[si].done=!t.subtasks[si].done;saveTodo(t);
+  const lv=document.getElementById('todoView');if(lv)lv.innerHTML=renderTodoView();
+}
+function addSubtask(tid){
+  const inp=document.getElementById('sub-inp-'+tid);if(!inp||!inp.value.trim())return;
+  const all=allTodos();const t=all.find(x=>x.id===tid);if(!t)return;
+  if(!t.subtasks)t.subtasks=[];
+  t.subtasks.push({title:inp.value.trim(),done:false,due:document.getElementById('sub-due-'+tid)?.value||null,assign:document.getElementById('sub-asgn-'+tid)?.value||''});
+  inp.value='';
+  const sd=document.getElementById('sub-due-'+tid);if(sd)sd.value='';
+  const sa=document.getElementById('sub-asgn-'+tid);if(sa)sa.value='';
+  saveTodo(t);
+  const lv=document.getElementById('todoView');if(lv)lv.innerHTML=renderTodoView();
+  setTimeout(()=>{const el=document.getElementById('todo-'+tid);if(el&&!el.classList.contains('ex'))togTodoEx(tid);},30);
+}
+function updTodoA(id,v){const all=allTodos();const t=all.find(x=>x.id===id);if(!t)return;t.assign=v;saveTodo(t);}
+function updTodoD(id,v){const all=allTodos();const t=all.find(x=>x.id===id);if(!t)return;t.due=v||null;saveTodo(t);const lv=document.getElementById('todoView');if(lv)lv.innerHTML=renderTodoView();}
+function updTodoN(id,v){const all=allTodos();const t=all.find(x=>x.id===id);if(!t)return;t.notes=v;saveTodo(t);}
+function delTodoItem(id){deleteTodo(id);const lv=document.getElementById('todoView');if(lv)lv.innerHTML=renderTodoView();}
+function addTodo(){
+  const title=document.getElementById('ft-title')?.value?.trim();if(!title)return;
+  if(!S.todos)S.todos=[];
+  S.todos.push({id:'m-'+Date.now(),title,prop:document.getElementById('ft-prop')?.value||'',due:document.getElementById('ft-due')?.value||null,assign:document.getElementById('ft-assign')?.value||'',module:document.getElementById('ft-mod')?.value||'General',auto:false,done:false,subtasks:[],notes:''});
+  sS();
+  ['ft-title','ft-prop','ft-due'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('addTodoForm')?.classList.remove('show');
+  const lv=document.getElementById('todoView');if(lv)lv.innerHTML=renderTodoView();
+}
+
+// ── PROPERTIES ───────────────────────────────────────────────────────────────
+function rProps(){
+  return`<div class="ctrls-bar"><input class="srch" type="text" placeholder="Search address..." oninput="document.querySelectorAll('.prop-card').forEach(c=>{c.style.display=this.value&&!c.querySelector('.prop-addr').textContent.toLowerCase().includes(this.value.toLowerCase())?'none':''})" style="margin-left:0;width:260px"><button class="tbtn primary" onclick="go('admin')" style="margin-left:auto">+ Add Property</button></div>
+  <div class="prop-grid">${S.properties.map(p=>rPropCard(p)).join('')}</div>`;
+}
+function rPropCard(p){
+  const st=calcRD(p),u=rUrg(p);
+  const badge=u==='urgent'?'<span class="badge br">Renewal urgent</span>':u==='upcoming'?'<span class="badge ba">Renewal coming up</span>':p.status==='vacant'?'<span class="badge bb">Vacant</span>':p.status==='no-lease'?'<span class="badge bgr">No lease</span>':'<span class="badge bg">Active</span>';
+  const mods=['renewals','owner-onboard','tenant-onboard','tenant-offboard','turnover','owner-offboard'];
+  return`<div class="prop-card" id="pc-${p.id}">
+    <div class="prop-header" onclick="document.getElementById('pc-${p.id}').classList.toggle('open')">
+      <div class="prop-addr">${p.a}</div>
+      ${st?`<span style="font-size:11px;color:#888">${Math.round((st.le-TODAY)/864e5)>0?Math.round((st.le-TODAY)/864e5)+' days':''}</span>`:''}
+      ${badge}<span class="chv">▼</span>
+    </div>
+    <div class="prop-body" id="pb-${p.id}">
+      <div class="msg">${mods.map(mod=>{const k='mod_'+mod.replace(/-/g,'_');const active=(S.pf[p.id]||{})[k]==='active';const pct=active?mPct(mod,p.id):null;return`<div class="ms" onclick="togMod('${p.id}','${mod}')"><div class="msn">${PTITLES[mod]}</div><div class="msv ${active?'':'none'}">${active?pct+'% done':'Tap to activate'}</div></div>`;}).join('')}</div>
+      ${st?`<div style="font-size:11px;color:#666;margin-bottom:9px">End: <strong>${fmt(st.le)}</strong> &nbsp;|&nbsp; Start: <strong>${fmt(st.ls)}</strong> &nbsp;|&nbsp; <span style="color:${st.sea?'#0C447C':'#888'}">${st.sea?'Seattle (180-day)':'Non-Seattle'}</span></div>`:''}
+      <div class="field-row"><span class="field-lbl">Assigned PM:</span><input class="field-input" value="${gPF(p.id,'pm')}" oninput="sPF('${p.id}','pm',this.value)" placeholder="PM name..."></div>
+      <textarea class="notes-area" placeholder="Property notes..." oninput="clearTimeout(ntTimers['${p.id}']);ntTimers['${p.id}']=setTimeout(()=>sPF('${p.id}','notes',this.value),600)">${gPF(p.id,'notes')}</textarea>
+    </div>
+  </div>`;
+}
+function togMod(pid,mod){const k='mod_'+mod.replace(/-/g,'_');const cur=(S.pf[pid]||{})[k];sPF(pid,k,cur==='active'?'':'active');render(curPage);}
+
+// ── MODULE ────────────────────────────────────────────────────────────────────
+function rMod(mod){
+  const defs=MTASKS[mod],tpls=TPLS[mod];
+  if(!defs)return'<div class="empty">Module not found.</div>';
+  const rel=S.properties.filter(p=>(S.pf[p.id]||{})['mod_'+mod.replace(/-/g,'_')]==='active');
+  return`<div class="ctrls-bar">
+    <button class="fb3 on" onclick="fMod('all',this)">All active</button>
+    <button class="fb3" onclick="fMod('in',this)">In progress</button>
+    <button class="fb3" onclick="fMod('done',this)">Complete</button>
+    <input class="srch" type="text" placeholder="Search..." oninput="document.querySelectorAll('.mod-card').forEach(c=>{c.style.display=this.value&&!c.querySelector('.mod-addr').textContent.toLowerCase().includes(this.value.toLowerCase())?'none':''})">
+  </div>
+  ${rel.length===0?`<div class="empty">No properties active in this module.<br><br>Go to Properties and tap a module to activate it.</div>`:''}
+  <div class="mod-container">${rel.map(p=>rModCard(mod,p,defs,tpls)).join('')}</div>`;
+}
+function rModCard(mod,p,defs,tpls){
+  const pid=p.id,pct=mPct(mod,pid),st=calcRD(p),sea=isSea(p.a);
+  const tasksH=defs.map(phase=>`<div class="ph-blk"><div class="ph-t">${phase.ph}</div><div class="task-list2">${phase.tasks.map(t=>{const chk=gT(mod,pid,t.id);return`<label class="task2 ${chk?'done':''}"><input type="checkbox" ${chk?'checked':''} onchange="togModTask('${mod}','${pid}','${t.id}',this)"><span class="task2-text">${t.l}</span><span class="role">${t.r}</span></label>`;}).join('')}</div></div>`).join('');
+  const tplsH=tpls?tpls.map((sec,si)=>`<div class="tpl-sec"><div class="tpl-sec-hdr">${sec.ph}</div>${sec.items.map((t,ti)=>`<div class="tpl-item" id="tpl-${mod}-${pid}-${si}-${ti}"><div class="tpl-bar" onclick="document.getElementById('tpl-${mod}-${pid}-${si}-${ti}').classList.toggle('open')"><span class="tpl-name">${t.n}</span><span class="tpl-tag">${t.tag}</span><span style="font-size:9px;color:#aaa">▼</span></div><div class="tpl-body"><div class="tpl-txt">${t.b}</div><button class="cbtn" onclick="cpT(this)">Copy</button></div></div>`).join('')}</div>`).join(''):'';
+  const datesH=mod==='renewals'&&st?`<div class="date-grid"><div class="db"><div class="dbl">Inspection</div><div class="dbv">${st.inspW?fmt(st.inspW.f)+'–'+fmt(st.inspW.t):'No start'}</div></div><div class="db"><div class="dbl">Owner notice</div><div class="dbv">By ${fmt(st.ownerBy)}</div></div><div class="db"><div class="dbl">RI window</div><div class="dbv">${fmt(st.riW.f)}–${fmt(st.riW.t)}</div></div><div class="db"><div class="dbl">Renewal send</div><div class="dbv">~${fmt(st.renSend)}</div></div></div>`:'';
+  return`<div class="mod-card" id="mc-${mod}-${pid}" data-pct="${pct}">
+    <div class="mod-header" onclick="document.getElementById('mc-${mod}-${pid}').classList.toggle('open')">
+      <div class="mod-addr">${p.a}</div>
+      ${st&&mod==='renewals'?`<span style="font-size:11px;color:#888">${Math.round((st.le-TODAY)/864e5)>0?Math.round((st.le-TODAY)/864e5)+' days':''}</span>`:''}
+      <span class="badge ${pct===100?'bg':pct>0?'ba':'bgr'}">${pct===100?'Complete':pct>0?pct+'% done':'Not started'}</span>
+      <span class="mchv">▼</span>
+    </div>
+    <div class="mod-body" id="mb-${mod}-${pid}">
+      ${sea&&mod==='renewals'?'<span class="sea-note">Seattle: 180-day rent increase notice required</span><br><br>':''}
+      <div class="field-row"><span class="field-lbl">Assigned PM:</span><input class="field-input" value="${gPF(pid,'pm')}" oninput="sPF('${pid}','pm',this.value)" placeholder="PM name..."></div>
+      ${datesH}
+      <div class="pbar"><div class="pfill" id="pf-${mod}-${pid}" style="width:${pct}%"></div></div>
+      <div class="pct-lbl" id="pl-${mod}-${pid}">${pct}% complete</div>
+      <div class="tabs" id="tabs-${mod}-${pid}">
+        <button class="tab on" onclick="swTab('${mod}','${pid}','tasks',this)">Tasks</button>
+        <button class="tab" onclick="swTab('${mod}','${pid}','templates',this)">Templates</button>
+        <button class="tab" onclick="swTab('${mod}','${pid}','notes',this)">Notes</button>
+      </div>
+      <div class="tp show" id="tp-tasks-${mod}-${pid}">${tasksH}</div>
+      <div class="tp" id="tp-templates-${mod}-${pid}">${tplsH}</div>
+      <div class="tp" id="tp-notes-${mod}-${pid}">
+        <textarea class="notes-area" placeholder="Notes..." oninput="clearTimeout(ntTimers['${mod}${pid}']);ntTimers['${mod}${pid}']=setTimeout(()=>sN('${mod}','${pid}',this.value),600)">${gN(mod,pid)}</textarea>
+      </div>
+    </div>
+  </div>`;
+}
+function swTab(mod,pid,tab,btn){['tasks','templates','notes'].forEach(t=>{const el=document.getElementById('tp-'+t+'-'+mod+'-'+pid);if(el)el.classList.toggle('show',t===tab);});document.querySelectorAll('#tabs-'+mod+'-'+pid+' .tab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+function togModTask(mod,pid,tid,el){sT(mod,pid,tid,el.checked);el.closest('.task2').classList.toggle('done',el.checked);const p=mPct(mod,pid);const pf=document.getElementById('pf-'+mod+'-'+pid);const pl=document.getElementById('pl-'+mod+'-'+pid);if(pf)pf.style.width=p+'%';if(pl)pl.textContent=p+'% complete';}
+function fMod(f,btn){document.querySelectorAll('.fb3').forEach(b=>b.classList.remove('on'));btn.classList.add('on');document.querySelectorAll('.mod-card').forEach(c=>{const p=parseInt(c.dataset.pct||0);c.style.display=f==='all'?'':f==='in'?(p>0&&p<100?'':'none'):f==='done'?(p===100?'':'none'):'';});}
+function cpT(btn){const txt=btn.closest('.tpl-body')?.querySelector('.tpl-txt');if(txt&&navigator.clipboard)navigator.clipboard.writeText(txt.textContent).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);});}
+
+// ── TRACKER ───────────────────────────────────────────────────────────────────
+function rEmail(){
+  const emails=S.emails||[];
+  const open=emails.filter(e=>!e.done);
+  const done=emails.filter(e=>e.done);
+  return`<button class="tbtn primary" onclick="document.getElementById('aef').classList.toggle('show')" style="margin-bottom:11px">+ Add item</button>
+  <div class="aef" id="aef">
+    <div class="fg"><input class="fgi" id="ef-addr" placeholder="Property / Owner / Tenant"><input class="fgi" id="ef-to" placeholder="Sent to (name / email)"><input class="fgi" id="ef-subj" placeholder="Subject / what it\'s about"><select class="fgi" id="ef-mod"><option value="">Module...</option>${Object.entries(PTITLES).filter(([k])=>!['dashboard','properties','email-tracker','admin'].includes(k)).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+    <div class="fg"><input class="fgi" id="ef-wait" placeholder="Notes / waiting on..."><select class="fgi" id="ef-status"><option value="waiting">Sent &amp; waiting</option><option value="followup">Follow-up needed</option><option value="received">Response received</option><option value="complete">Complete</option></select></div>
+    <div style="display:flex;gap:8px"><button class="tbtn primary" onclick="addEmail()">Add</button><button class="tbtn" onclick="document.getElementById('aef').classList.remove('show')">Cancel</button></div>
+  </div>
+  ${open.length>0?`<div class="sh-row"><span class="sh">Open items (${open.length})</span></div><div class="em-list" style="margin-bottom:1.25rem">${open.map((e,i)=>rEmCard(e,emails.indexOf(e))).join('')}</div>`:''}
+  ${done.length>0?`<div class="sh-row"><span class="sh" style="color:#888">Completed (${done.length})</span></div><div class="em-list">${done.map((e,i)=>rEmCard(e,emails.indexOf(e))).join('')}</div>`:''}
+  ${emails.length===0?'<div class="empty">No items logged yet. Click "+ Add item" to get started.</div>':''}`;
+}
+function rEmCard(e,i){
+  const sc={waiting:'ba',followup:'br',complete:'bg',received:'bb'};
+  const sl={waiting:'Sent & waiting',followup:'Follow-up needed',complete:'Complete',received:'Response received'};
+  const mc={'Lease Renewal':'ba','Owner Onboarding':'bp','Tenant Onboarding':'bg','Tenant Offboarding':'br','Property Turnover':'ba','Owner Offboarding':'br'};
+  const subs=e.subtasks||[];
+  const subDone=subs.filter(s=>s.done).length;
+  const isEx=document.getElementById('em-card-'+i)?.classList.contains('ex');
+  return`<div class="em-card ${e.done?'done-card':''} ${isEx?'ex':''}" id="em-card-${i}">
+    <div class="em-main">
+      <div class="em-chk ${e.done?'on':''}" onclick="togEmail(${i},event)"></div>
+      <div class="em-cont" onclick="togEmEx(${i})">
+        <div class="em-title ${e.done?'dk':''}">${e.subject||e.title||''}</div>
+        <div class="em-meta">
+          ${e.addr?`<span style="font-size:10px;color:#888">${e.addr}</span>`:''}
+          ${e.module?`<span class="badge ${mc[PTITLES[e.module]]||'bgr'}">${PTITLES[e.module]||e.module}</span>`:''}
+          ${e.status&&!e.done?`<span class="badge ${sc[e.status]||'bgr'}">${sl[e.status]||e.status}</span>`:''}
+          ${subs.length>0?`<span style="font-size:10px;color:#888">${subDone}/${subs.length} subtasks</span>`:''}
+        </div>
+      </div>
+      <div class="em-right">
+        <span class="em-date">${e.date||''}</span>
+        <button class="em-exbtn" onclick="togEmEx(${i})">▼</button>
+      </div>
+    </div>
+    <div class="em-exp">
+      ${subs.length>0?`<div class="em-slist">${subs.map((s,si)=>`<div class="em-sub"><div class="em-schk ${s.done?'on':''}" onclick="togEmSub(${i},${si})"></div><span class="em-stl ${s.done?'dk':''}">${s.title}</span></div>`).join('')}</div>`:''}
+      <div class="em-subrow">
+        <input class="mi" id="em-sub-inp-${i}" placeholder="Add subtask...">
+        <button class="mbtn" onclick="addEmSub(${i})">+ Add</button>
+      </div>
+      <div class="em-arow">
+        <span class="em-albl">Status:</span>
+        <select class="em-asel" onchange="updEmStatus(${i},this.value)">
+          <option value="waiting" ${e.status==='waiting'?'selected':''}>Sent &amp; waiting</option>
+          <option value="followup" ${e.status==='followup'?'selected':''}>Follow-up needed</option>
+          <option value="received" ${e.status==='received'?'selected':''}>Response received</option>
+          <option value="complete" ${e.status==='complete'?'selected':''}>Complete</option>
+        </select>
+        <span class="em-albl">To:</span>
+        <input class="mi" value="${(e.to||'').replace(/"/g,'&quot;')}" placeholder="Sent to..." onchange="updEmField(${i},'to',this.value)" style="max-width:140px;flex:unset">
+        <button class="em-delbtn" onclick="if(confirm('Remove this item?')){S.emails.splice(${i},1);sS();render('email-tracker')}">Delete</button>
+      </div>
+      <div class="em-nrow">
+        <span class="em-albl">Notes:</span>
+        <input class="em-ninp" value="${(e.waiting||'').replace(/"/g,'&quot;')}" placeholder="Notes / waiting on..." onchange="updEmField(${i},'waiting',this.value)">
+      </div>
+    </div>
+  </div>`;
+}
+function togEmEx(i){const el=document.getElementById('em-card-'+i);if(!el)return;el.classList.toggle('ex');const b=el.querySelector('.em-exbtn');if(b)b.textContent=el.classList.contains('ex')?'▲':'▼';}
+function togEmail(i,e){e.stopPropagation();if(!S.emails[i])return;S.emails[i].done=!S.emails[i].done;sS();render('email-tracker');}
+function togEmSub(i,si){if(!S.emails[i])return;if(!S.emails[i].subtasks)S.emails[i].subtasks=[];S.emails[i].subtasks[si].done=!S.emails[i].subtasks[si].done;sS();render('email-tracker');}
+function addEmSub(i){const inp=document.getElementById('em-sub-inp-'+i);if(!inp||!inp.value.trim())return;if(!S.emails[i].subtasks)S.emails[i].subtasks=[];S.emails[i].subtasks.push({title:inp.value.trim(),done:false});inp.value='';sS();render('email-tracker');setTimeout(()=>{const el=document.getElementById('em-card-'+i);if(el&&!el.classList.contains('ex'))togEmEx(i);},30);}
+function updEmStatus(i,v){if(!S.emails[i])return;S.emails[i].status=v;sS();}
+function updEmField(i,k,v){if(!S.emails[i])return;S.emails[i][k]=v;sS();}
+function addEmail(){
+  const subj=document.getElementById('ef-subj')?.value?.trim();
+  if(!subj)return;
+  if(!S.emails)S.emails=[];
+  S.emails.unshift({subject:subj,addr:document.getElementById('ef-addr')?.value||'',to:document.getElementById('ef-to')?.value||'',waiting:document.getElementById('ef-wait')?.value||'',module:document.getElementById('ef-mod')?.value||'',status:document.getElementById('ef-status')?.value||'waiting',date:new Date().toLocaleDateString(),done:false,subtasks:[]});
+  sS();
+  ['ef-addr','ef-to','ef-subj','ef-wait'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('aef')?.classList.remove('show');
+  render('email-tracker');
+}
+
+// ── ADMIN ──────────────────────────────────────────────────────────────────────
+function rAdmin(){return`<div class="adm-sec"><h3>Add a property</h3><div class="fg" style="margin-bottom:8px"><input class="fgi" id="ap-addr" placeholder="Full address"><input class="fgi" id="ap-end" placeholder="Lease end (M/D/YY)"><input class="fgi" id="ap-start" placeholder="Lease start (M/D/YY)"><select class="fgi" id="ap-status"><option value="active">Active</option><option value="vacant">Vacant</option><option value="no-lease">No lease date</option></select></div><button class="tbtn primary" onclick="addProp()">Add Property</button></div>
+  <div class="adm-sec"><h3>All properties (${S.properties.length})</h3><div class="pa-list">${S.properties.map((p,i)=>`<div class="pa-item"><span class="pa-addr">${p.a}</span><span style="font-size:11px;color:#888">${p.leaseEnd||'No lease'}</span><button class="cbtn" onclick="editP(${i})">Edit</button><button class="cbtn" style="color:#A32D2D;border-color:#F7C1C1" onclick="if(confirm('Remove?')){S.properties.splice(${i},1);sS();render('admin')}">Remove</button></div>`).join('')}</div></div>
+  <div class="adm-sec"><h3>Data management</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="tbtn" onclick="expData()">Export data (JSON)</button><button class="tbtn" style="color:#A32D2D" onclick="if(confirm('Reset all task progress and notes?')){S.tasks={};S.notes={};sS();render(curPage)}">Reset all progress</button></div></div>`;}
+function addProp(){const addr=document.getElementById('ap-addr')?.value?.trim();if(!addr)return alert('Please enter an address.');S.properties.push({id:'p'+Date.now(),a:addr,leaseEnd:document.getElementById('ap-end')?.value||null,leaseStart:document.getElementById('ap-start')?.value||null,status:document.getElementById('ap-status')?.value||'active'});sS();render('admin');}
+function editP(i){const p=S.properties[i];const addr=prompt('Address:',p.a);if(!addr)return;const end=prompt('Lease end (M/D/YY):',p.leaseEnd||'');const start=prompt('Lease start (M/D/YY):',p.leaseStart||'');S.properties[i]={...p,a:addr,leaseEnd:end||null,leaseStart:start||null};sS();render('admin');}
+function expData(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='tmg-ops-data.json';a.click();URL.revokeObjectURL(u);}
+
+// ── CONTACTS ──────────────────────────────────────────────────────────────────
+function rContacts(){
+  const contacts = S.contacts||[];
+  const tenants = contacts.filter(c=>c.type==='tenant');
+  const owners = contacts.filter(c=>c.type==='owner');
+  const props = S.properties.map(p=>p.a);
+  return`
+  <div class="ctrls-bar" style="margin-bottom:1rem">
+    <button class="fb3 on" id="ct-tab-tenant" onclick="showContactTab('tenant')">Tenants (${tenants.length})</button>
+    <button class="fb3" id="ct-tab-owner" onclick="showContactTab('owner')">Owners (${owners.length})</button>
+    <button class="tbtn primary" onclick="openContactForm('tenant')" style="margin-left:auto">+ Add Contact</button>
+  </div>
+  <div id="contact-form-wrap"></div>
+  <div id="contact-list-tenant">
+    ${tenants.length===0?'<div class="empty">No tenants added yet. Click "+ Add Contact" to add one.</div>':''}
+    <div class="contact-grid">${tenants.map((c,i)=>rContactCard(c,contacts.indexOf(c))).join('')}</div>
+  </div>
+  <div id="contact-list-owner" style="display:none">
+    ${owners.length===0?'<div class="empty">No owners added yet. Click "+ Add Contact" to add one.</div>':''}
+    <div class="contact-grid">${owners.map((c,i)=>rContactCard(c,contacts.indexOf(c))).join('')}</div>
+  </div>`;
+}
+
+function showContactTab(type){
+  document.getElementById('contact-list-tenant').style.display=type==='tenant'?'block':'none';
+  document.getElementById('contact-list-owner').style.display=type==='owner'?'block':'none';
+  document.querySelectorAll('[id^="ct-tab-"]').forEach(b=>b.classList.remove('on'));
+  document.getElementById('ct-tab-'+type)?.classList.add('on');
+}
+
+function rContactCard(c,i){
+  const initials=(c.name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  const colors=['#185FA5','#3C3489','#0F6E56','#993C1D','#854F0B'];
+  const bg=colors[i%colors.length];
+  return`<div class="contact-card">
+    <div class="contact-header">
+      <div class="contact-avatar" style="background:${bg}20;color:${bg}">${initials}</div>
+      <div>
+        <div class="contact-name">${c.name||'—'}</div>
+        <div class="contact-prop">${c.property||'No property linked'}</div>
+      </div>
+      <span class="badge ${c.type==='tenant'?'bg':'bp'}" style="margin-left:auto">${c.type==='tenant'?'Tenant':'Owner'}</span>
+    </div>
+    <div class="contact-fields">
+      <div><div class="cf-lbl">Phone</div><div class="cf-val">${c.phone||'—'}</div></div>
+      <div><div class="cf-lbl">Email</div><div class="cf-val" style="font-size:11px;word-break:break-all">${c.email||'—'}</div></div>
+      <div><div class="cf-lbl">Move-in</div><div class="cf-val">${c.moveIn||'—'}</div></div>
+      <div><div class="cf-lbl">Lease end</div><div class="cf-val">${c.leaseEnd||'—'}</div></div>
+    </div>
+    <div class="contact-actions">
+      <button class="cbtn" onclick="editContact(${i})">Edit</button>
+      <button class="cbtn" onclick="useContactTemplates(${i})">Use in template</button>
+      <button class="cbtn" style="color:#A32D2D;border-color:#F7C1C1;margin-left:auto" onclick="if(confirm('Remove?')){S.contacts.splice(${i},1);sS();render('contacts')}">Remove</button>
+    </div>
+  </div>`;
+}
+
+function openContactForm(type,existing,idx){
+  const c=existing||{};
+  const props=S.properties.map(p=>`<option value="${p.a}" ${c.property===p.a?'selected':''}>${p.a}</option>`).join('');
+  document.getElementById('contact-form-wrap').innerHTML=`
+  <div class="adm-sec" style="margin-bottom:1rem">
+    <h3>${existing?'Edit contact':'Add contact'}</h3>
+    <div class="fg" style="margin-bottom:8px">
+      <input class="fgi" id="cf-name" placeholder="Full name" value="${c.name||''}">
+      <select class="fgi" id="cf-type">
+        <option value="tenant" ${(!c.type||c.type==='tenant')?'selected':''}>Tenant</option>
+        <option value="owner" ${c.type==='owner'?'selected':''}>Owner</option>
+      </select>
+    </div>
+    <div class="fg" style="margin-bottom:8px">
+      <input class="fgi" id="cf-phone" placeholder="Phone number" value="${c.phone||''}">
+      <input class="fgi" id="cf-email" placeholder="Email address" value="${c.email||''}">
+    </div>
+    <div class="fg" style="margin-bottom:8px">
+      <select class="fgi" id="cf-prop"><option value="">Link to property...</option>${props}</select>
+      <input class="fgi" id="cf-addr" placeholder="Mailing address (if different)" value="${c.mailingAddress||''}">
+    </div>
+    <div class="fg" style="margin-bottom:8px">
+      <input class="fgi" id="cf-movein" placeholder="Move-in date (M/D/YY)" value="${c.moveIn||''}">
+      <input class="fgi" id="cf-leaseend" placeholder="Lease end date (M/D/YY)" value="${c.leaseEnd||''}">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="tbtn primary" onclick="saveContact(${idx!==undefined?idx:'null'})">${existing?'Save changes':'Add contact'}</button>
+      <button class="tbtn" onclick="document.getElementById('contact-form-wrap').innerHTML=''">Cancel</button>
+    </div>
+  </div>`;
+}
+
+function saveContact(idx){
+  const c={
+    name:document.getElementById('cf-name')?.value||'',
+    type:document.getElementById('cf-type')?.value||'tenant',
+    phone:document.getElementById('cf-phone')?.value||'',
+    email:document.getElementById('cf-email')?.value||'',
+    property:document.getElementById('cf-prop')?.value||'',
+    mailingAddress:document.getElementById('cf-addr')?.value||'',
+    moveIn:document.getElementById('cf-movein')?.value||'',
+    leaseEnd:document.getElementById('cf-leaseend')?.value||'',
+  };
+  if(!c.name)return alert('Please enter a name.');
+  if(!S.contacts)S.contacts=[];
+  if(idx!==null&&idx!==undefined)S.contacts[idx]=c;
+  else S.contacts.push(c);
+  sS();render('contacts');
+}
+
+function editContact(i){
+  const c=S.contacts[i];
+  openContactForm(c.type,c,i);
+  document.getElementById('contact-form-wrap').scrollIntoView({behavior:'smooth'});
+}
+
+function useContactTemplates(i){
+  const c=S.contacts[i];
+  if(!c)return;
+  localStorage.setItem('tmg_active_contact',JSON.stringify(c));
+  go('templates');
+  setTimeout(()=>{
+    const el=document.getElementById('active-contact-banner');
+    if(el)el.style.display='flex';
+  },100);
+}
+
+// ── TEMPLATES ─────────────────────────────────────────────────────────────────
+const DEFAULT_TPLS_FLAT = [
+  {id:'t-r-1',module:'Lease Renewal',name:'PM: schedule inspection',tag:'To PM',body:'Subject: Inspection Due – {property_address}\n\nHi {pm_name},\n\nWe are coming up on the inspection window for {property_address}. Please arrange availability and reach out to the tenant to coordinate a date and time.\n\nOnce confirmed, share the scheduled date so we can calendar it.\n\nThanks,\n[Your Name]\nTMG Property Management'},
+  {id:'t-r-2',module:'Lease Renewal',name:'Tenant: inspection notice',tag:'To Tenant',body:'Subject: Upcoming Property Inspection – {property_address}\n\nHi {tenant_name},\n\nAs part of our routine property care, we will be conducting a property inspection in the coming weeks. Your property manager will be in touch to coordinate a date and time.\n\nThank you for your cooperation.\n\nBest,\nTMG Property Management'},
+  {id:'t-r-3',module:'Lease Renewal',name:'Owner: inspection report + rent rec',tag:'To Owner',body:'Subject: Inspection Report & Lease Update – {property_address}\n\nHi {owner_name},\n\nPlease find attached the completed inspection report for {property_address}.\n\nOverall condition: [SUMMARY]\n\nRent increase recommendation: $[AMOUNT]/mo (currently $[CURRENT])\nRenewal recommendation: [Renew / Non-renew]\n\nPlease confirm your decision by [DEADLINE DATE].\n\nBest,\n[Your Name]\nTMG Property Management'},
+  {id:'t-r-4',module:'Lease Renewal',name:'Owner: decision follow-up',tag:'To Owner',body:'Subject: Lease Decision Needed – {property_address}\n\nHi {owner_name},\n\nFollowing up on the lease renewal decision for {property_address}. We need your direction by [DATE] to ensure all notices are delivered within the legal timeframe.\n\n1. Will there be a rent increase? If so, what amount?\n2. Do you wish to renew the lease?\n\nThank you,\n[Your Name]\nTMG Property Management'},
+  {id:'t-r-5',module:'Lease Renewal',name:'Tenant: rent increase heads-up',tag:'To Tenant',body:'Subject: Upcoming Lease Renewal Notice – {property_address}\n\nHi {tenant_name},\n\nWe wanted to give you advance notice that there will be a rent adjustment as part of your upcoming lease renewal. Your property manager will be delivering an official written notice to your door shortly.\n\nBest,\nTMG Property Management'},
+  {id:'t-r-6',module:'Lease Renewal',name:'Tenant: no rent increase',tag:'To Tenant',body:'Subject: Lease Renewal Update – {property_address}\n\nHi {tenant_name},\n\nGreat news — there will be no rent increase for your upcoming lease renewal. We will be in touch soon with renewal details.\n\nThank you for being a valued tenant.\n\nBest,\nTMG Property Management'},
+  {id:'t-r-7',module:'Lease Renewal',name:'Tenant: renewal offer',tag:'To Tenant',body:'Subject: Your Lease Renewal – {property_address}\n\nHi {tenant_name},\n\nYour lease at {property_address} expires on {lease_end}. We are pleased to offer a renewal:\n\n- New monthly rent: $[AMOUNT]\n- Lease term: [START] – [END]\n\nPlease confirm by [DEADLINE]. If we do not hear from you, we will assume you do not wish to renew.\n\nBest,\nTMG Property Management'},
+  {id:'t-r-8',module:'Lease Renewal',name:'Tenant: renewal follow-up',tag:'To Tenant',body:'Subject: Follow-Up: Renewal Decision Needed – {property_address}\n\nHi {tenant_name},\n\nWe have not received a response regarding your lease renewal at {property_address}, which expires {lease_end}. Your deadline is [DEADLINE]. Please reply at your earliest convenience.\n\nThank you,\nTMG Property Management'},
+  {id:'t-oo-1',module:'Owner Onboarding',name:'Owner: next steps & timeline',tag:'To Owner',body:'Subject: Next Steps and Timeline for Your Property\n\nHi {owner_name},\n\nNow that your management agreement is complete, I want to connect on next steps and get a clear timeline for your property at {property_address}.\n\nCan you please let me know:\n- Your target timeline for having the property rent ready\n- Any work still outstanding (cleaning, repairs, maintenance, etc.)\n\nBased on what is needed, we will outline a realistic timeline for final preparation, professional cleaning, photos, and listing.\n\nBest,\n[Your Name]\nTMG Property Management'},
+  {id:'t-to-1',module:'Tenant Onboarding',name:'Thanks for applying',tag:'To Tenant',body:'Subject: Thank You for Your Application – {property_address}\n\nHi {tenant_name},\n\nThank you for submitting your application for {property_address}. We have received it and will be reviewing it shortly.\n\nWe will be in touch with a decision as soon as our review is complete.\n\nBest,\nTMG Property Management'},
+  {id:'t-to-2',module:'Tenant Onboarding',name:'Application approved',tag:'To Tenant',body:'Subject: Application Approved – {property_address}\n\nHi {tenant_name},\n\nGreat news — your application for {property_address} has been approved!\n\nNext steps:\n1. Review and sign your lease (coming via AppFolio shortly)\n2. Security deposit of $[AMOUNT] due within 48 hours of signing\n3. First month\'s rent of $[AMOUNT] due 5 days prior to move-in via ACH in AppFolio\n\nWelcome to TMG!\n\nBest,\n[Your Name]\nTMG Property Management'},
+  {id:'t-to-3',module:'Tenant Onboarding',name:'Next steps after lease signing',tag:'To Tenant',body:'Subject: Next Steps – Your Move-In at {property_address}\n\nHi {tenant_name},\n\nThank you for signing your lease! Here is what happens next before your move-in on {move_in}:\n\n1. Utilities — Please set up the following in your name before move-in: [LIST UTILITIES]\n2. Renter\'s insurance — Required before keys are released. Please provide proof to our office.\n3. Move-in inspection — Scheduled for [DATE] at [TIME].\n4. Keys — [Handed over at inspection / Lockbox will be placed at the property]\n\nBest,\n[Your Name]\nTMG Property Management'},
+  {id:'t-to-4',module:'Tenant Onboarding',name:'Welcome email (post move-in)',tag:'To Tenant',body:'Subject: Welcome to Your New Home – {property_address}\n\nHi {tenant_name},\n\nWelcome! Here is everything you need:\n\nRent payments: Log in to your AppFolio tenant portal at [PORTAL LINK]\nMaintenance requests: Submit through the AppFolio tenant portal\nEmergency contact: [EMERGENCY NUMBER]\nOur office: [OFFICE HOURS AND CONTACT]\n\nThank you for choosing TMG Property Management.\n\nBest,\n[Your Name]\nTMG Property Management'},
+  {id:'t-tof-1',module:'Tenant Offboarding',name:'Owner: tenant not renewing',tag:'To Owner',body:'Subject: Update on Lease Renewal – {property_address}\n\nHi {owner_name},\n\n{tenant_name} at {property_address} will not be renewing their lease, which ends on {lease_end}.\n\nPlease let us know:\n1. Would you like us to re-rent the property?\n2. Are there specific updates or repairs you would like completed during turnover?\n\nWe will have a property manager do a walk-through approximately 2 weeks before the lease ends.\n\nBest,\n[Your Name]\nTMG Property Management'},
+  {id:'t-tof-2',module:'Tenant Offboarding',name:'Move-out instructions + checklist',tag:'To Tenant',body:'Subject: Move-Out Instructions – {property_address}\n\nHi {tenant_name},\n\nAs your lease at {property_address} ends on {lease_end}, here is your move-out checklist:\n\n- Remove all personal belongings\n- Clean all rooms, appliances, and fixtures thoroughly\n- Have carpets professionally cleaned\n- Remove all trash and debris\n- Return all keys, mailbox keys, and garage openers\n\nNOTICE TO VACATE: Please submit through the tenant portal, including your forwarding address and eCheck confirmation for security deposit return.\n\nBest,\nTMG Property Management'},
+  {id:'t-tof-3',module:'Tenant Offboarding',name:'2-week reminder',tag:'To Tenant',body:'Subject: Move-Out Reminder – 2 Weeks Away – {property_address}\n\nHi {tenant_name},\n\nJust a reminder that your lease at {property_address} ends in 2 weeks on {lease_end}. Please make sure your move-out checklist is on track and your Notice to Vacate has been submitted through the portal.\n\nBest,\nTMG Property Management'},
+  {id:'t-tof-4',module:'Tenant Offboarding',name:'1-week reminder + lockbox',tag:'To Tenant',body:'Subject: Move-Out – 1 Week Reminder – {property_address}\n\nHi {tenant_name},\n\nYour lease ends in one week on {lease_end}.\n\nKey return: A lockbox will be placed at the property. Please return all keys, mailbox keys, and garage openers to the lockbox by {lease_end}.\n\nPlease ensure the property is fully vacated and cleaned by your lease end date.\n\nThank you,\nTMG Property Management'},
+  {id:'t-tv-1',module:'Property Turnover',name:'Pre-turnover assessment',tag:'To Owner',body:'Subject: Property Turnover Update – {property_address}\n\nHi {owner_name},\n\nOur property manager completed a pre-turnover walk-through at {property_address}.\n\nWork needed: [LIST ITEMS]\nEstimated timeline: [TIMELINE]\nEstimated cost: $[COST]\n\nUpdated rent analysis: We recommend listing at $[NEW RENT]/mo (previous: $[OLD RENT]/mo).\n\nPlease confirm you approve moving forward.\n\nBest,\n[Your Name]\nTMG Property Management'},
+  {id:'t-tv-2',module:'Property Turnover',name:'Turnover complete — ready to list',tag:'To Owner',body:'Subject: Property Ready for Rent – {property_address}\n\nHi {owner_name},\n\n{property_address} has completed turnover and is ready to be listed.\n\nWork completed:\n- Professional cleaning\n- Carpet cleaning\n- [ANY REPAIRS]\n\nListing rent: $[AMOUNT]/mo\n\nWe will begin marketing immediately.\n\nBest,\n[Your Name]\nTMG Property Management'},
+  {id:'t-ooff-1',module:'Owner Offboarding',name:'Tenant: management change notice',tag:'To Tenant',body:'Subject: Important Notice: Change in Property Management – {property_address}\n\nDear {tenant_name},\n\nEffective [DATE], TMG Property Management will no longer be managing {property_address}.\n\nYour new point of contact:\n[NEW PM / OWNER NAME]\n[CONTACT INFORMATION]\n\nPlease direct all future rent payments, maintenance requests, and communications to them. Your lease terms remain unchanged. Your security deposit of $[AMOUNT] will be transferred to [NEW PM / OWNER].\n\nThank you for being a valued tenant.\n\nSincerely,\nTMG Property Management'},
+];
+
+const MERGE_FIELDS = [
+  {key:'{tenant_name}',label:'Tenant name'},
+  {key:'{owner_name}',label:'Owner name'},
+  {key:'{property_address}',label:'Property address'},
+  {key:'{tenant_email}',label:'Tenant email'},
+  {key:'{tenant_phone}',label:'Tenant phone'},
+  {key:'{owner_email}',label:'Owner email'},
+  {key:'{owner_phone}',label:'Owner phone'},
+  {key:'{move_in}',label:'Move-in date'},
+  {key:'{lease_end}',label:'Lease end date'},
+  {key:'{pm_name}',label:'PM name'},
+];
+
+function getTpls(){
+  if(!S.customTpls) S.customTpls={};
+  return DEFAULT_TPLS_FLAT.map(t=>({...t,body:S.customTpls[t.id]!==undefined?S.customTpls[t.id]:t.body}));
+}
+
+function fillTemplate(body, contact){
+  if(!contact) return body;
+  const prop = contact.property||'';
+  const linkedTenant = (S.contacts||[]).find(c=>c.type==='tenant'&&c.property===prop);
+  const linkedOwner = (S.contacts||[]).find(c=>c.type==='owner'&&c.property===prop);
+  return body
+    .replace(/\{tenant_name\}/g, linkedTenant?.name||contact.name||'{tenant_name}')
+    .replace(/\{owner_name\}/g, linkedOwner?.name||'{owner_name}')
+    .replace(/\{property_address\}/g, prop||'{property_address}')
+    .replace(/\{tenant_email\}/g, linkedTenant?.email||contact.email||'{tenant_email}')
+    .replace(/\{tenant_phone\}/g, linkedTenant?.phone||contact.phone||'{tenant_phone}')
+    .replace(/\{owner_email\}/g, linkedOwner?.email||'{owner_email}')
+    .replace(/\{owner_phone\}/g, linkedOwner?.phone||'{owner_phone}')
+    .replace(/\{move_in\}/g, linkedTenant?.moveIn||contact.moveIn||'{move_in}')
+    .replace(/\{lease_end\}/g, linkedTenant?.leaseEnd||contact.leaseEnd||'{lease_end}')
+    .replace(/\{pm_name\}/g, gPF(S.properties.find(p=>p.a===prop)?.id||'','pm')||'{pm_name}');
+}
+
+function rTemplates(){
+  const tpls = getTpls();
+  let activeContact = null;
+  try{const ac=localStorage.getItem('tmg_active_contact');if(ac)activeContact=JSON.parse(ac);}catch(e){}
+  const modules = [...new Set(tpls.map(t=>t.module))];
+  const mc={'Lease Renewal':'ba','Owner Onboarding':'bp','Tenant Onboarding':'bg','Tenant Offboarding':'br','Property Turnover':'ba','Owner Offboarding':'br'};
+  const bannerHtml = activeContact?`<div id="active-contact-banner" style="display:flex;align-items:center;gap:10px;background:#EAF3DE;border:1px solid #97C459;border-radius:10px;padding:10px 14px;margin-bottom:1rem">
+    <span style="font-size:12px;font-weight:600;color:#27500A">Auto-filling for: ${activeContact.name} — ${activeContact.property||'no property'}</span>
+    <button class="cbtn" onclick="localStorage.removeItem('tmg_active_contact');render('templates')" style="margin-left:auto">Clear</button>
+  </div>`:`<div style="background:#fafaf8;border:1px solid #e5e5e3;border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#888">
+    No contact selected. Go to <span style="color:#185FA5;cursor:pointer;font-weight:600" onclick="go('contacts')">Contacts</span> and click "Use in template" to auto-fill names and addresses.
+  </div>`;
+  return`${bannerHtml}
+  <div style="margin-bottom:1rem">
+    <div class="field-chips">
+      <span style="font-size:11px;color:#888;align-self:center;margin-right:4px">Insert field:</span>
+      ${MERGE_FIELDS.map(f=>`<span class="chip" onclick="insertField('${f.key}')" title="${f.label}">${f.label}</span>`).join('')}
+    </div>
+    <div style="font-size:11px;color:#aaa">Click a field chip to copy it, then paste into any template you are editing.</div>
+  </div>
+  ${modules.map(mod=>`
+    <div class="tlib-section">
+      <div class="tlib-section-hdr" onclick="togSection('ts-${mod.replace(/\s/g,'-')}')">
+        <span class="badge ${mc[mod]||'bgr'}">${mod}</span>
+        <span style="flex:1">${mod} templates</span>
+        <span style="font-size:10px;color:#aaa">${tpls.filter(t=>t.module===mod).length} templates</span>
+        <span style="font-size:9px;color:#aaa;margin-left:6px">▼</span>
+      </div>
+      <div class="tlib-items" id="ts-${mod.replace(/\s/g,'-')}">
+        ${tpls.filter(t=>t.module===mod).map(t=>`
+          <div class="tlib-card" id="tlc-${t.id}">
+            <div class="tlib-header" onclick="togTlib('${t.id}')">
+              <span class="tlib-title">${t.name}</span>
+              <span class="badge ${mc[t.module]||'bgr'}">${t.tag}</span>
+              ${S.customTpls&&S.customTpls[t.id]!==undefined?'<span class="badge" style="background:#FAEEDA;color:#854F0B">Edited</span>':''}
+              <span class="tlchv">▼</span>
+            </div>
+            <div class="tlib-body">
+              <textarea class="tpl-editor" id="te-${t.id}" oninput="autoSaveTpl('${t.id}',this.value)">${t.body}</textarea>
+              <div class="tpl-actions">
+                <button class="tbtn primary" onclick="copyTplFilled('${t.id}',this)">Copy template</button>
+                <button class="tbtn" onclick="previewTpl('${t.id}')">Preview with contact data</button>
+                <button class="tbtn" onclick="resetTpl('${t.id}')">Reset to default</button>
+                <span class="tpl-saved" id="ts-saved-${t.id}">Saved</span>
+              </div>
+              <div class="tpl-preview" id="tp-prev-${t.id}"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('')}`;
+}
+
+function togTlib(id){document.getElementById('tlc-'+id)?.classList.toggle('open');}
+function togSection(id){const el=document.getElementById(id);if(el)el.style.display=el.style.display==='none'?'':'none';}
+
+let tplSaveTimers={};
+function autoSaveTpl(id,val){
+  clearTimeout(tplSaveTimers[id]);
+  tplSaveTimers[id]=setTimeout(()=>{
+    if(!S.customTpls)S.customTpls={};
+    const def=DEFAULT_TPLS_FLAT.find(t=>t.id===id);
+    if(def&&val===def.body){delete S.customTpls[id];}
+    else{S.customTpls[id]=val;}
+    sS();
+    const sv=document.getElementById('ts-saved-'+id);
+    if(sv){sv.style.display='inline';setTimeout(()=>sv.style.display='none',1500);}
+  },600);
+}
+
+function resetTpl(id){
+  if(!confirm('Reset this template to the original default?'))return;
+  if(!S.customTpls)S.customTpls={};
+  delete S.customTpls[id];
+  sS();
+  const ta=document.getElementById('te-'+id);
+  const def=DEFAULT_TPLS_FLAT.find(t=>t.id===id);
+  if(ta&&def)ta.value=def.body;
+  const sv=document.getElementById('ts-saved-'+id);
+  if(sv){sv.style.display='inline';sv.textContent='Reset to default';setTimeout(()=>{sv.style.display='none';sv.textContent='Saved';},1500);}
+}
+
+function copyTplFilled(id,btn){
+  let activeContact=null;
+  try{const ac=localStorage.getItem('tmg_active_contact');if(ac)activeContact=JSON.parse(ac);}catch(e){}
+  const ta=document.getElementById('te-'+id);
+  if(!ta)return;
+  const filled=fillTemplate(ta.value,activeContact);
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(filled).then(()=>{
+      const orig=btn.textContent;btn.textContent='Copied!';
+      setTimeout(()=>btn.textContent=orig,1500);
+    });
+  }
+}
+
+function previewTpl(id){
+  let activeContact=null;
+  try{const ac=localStorage.getItem('tmg_active_contact');if(ac)activeContact=JSON.parse(ac);}catch(e){}
+  const ta=document.getElementById('te-'+id);
+  const prev=document.getElementById('tp-prev-'+id);
+  if(!ta||!prev)return;
+  const filled=fillTemplate(ta.value,activeContact);
+  prev.textContent=filled;
+  prev.classList.toggle('show');
+}
+
+function insertField(key){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(key).then(()=>{
+      const chips=document.querySelectorAll('.chip');
+      chips.forEach(c=>{if(c.getAttribute('onclick')&&c.getAttribute('onclick').includes(key)){const orig=c.textContent;c.textContent='Copied!';setTimeout(()=>c.textContent=orig,1000);}});
+    });
+  }
+}
+
+// ── INIT ────────────────────────────────────────────────────────────────────
+lS();
+go('dashboard');
+</script>
+</body>
+</html>
